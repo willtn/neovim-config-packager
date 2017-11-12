@@ -1,5 +1,6 @@
 #/bin/sh
-rm -rf ~/.config/nvim ~/.tmux.conf ~/.zshrc ~/.oh-my-zsh \
+rm -rf ~/.config/nvim ~/.tmux.conf ~/.zshrc ~/.oh-my-zsh ~/.local/share/konsole/* \
+&& sudo apt-get install konsole \
 && sudo apt-get install silversearcher-ag \
 && curl -fLo ~/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh \
 && curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
@@ -7,6 +8,8 @@ rm -rf ~/.config/nvim ~/.tmux.conf ~/.zshrc ~/.oh-my-zsh \
 && ln -s $(pwd)/zshrc ~/.zshrc \
 && ln -s $(pwd)/tmux.conf ~/.tmux.conf \
 && ln -s $(pwd)/snippets ~/.config/nvim/snippets \
+&& ln -s $(pwd)/Default.colorscheme ~/.local/share/konsole/Default.colorscheme \
+&& ln -s $(pwd)/Default.profile ~/.local/share/konsole/Default.profile \
 && nvim -c 'PlugInstall' -c 'qa!' \
 && sudo apt-get install dh-autoreconf \
 && git clone https://github.com/universal-ctags/ctags \

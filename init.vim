@@ -1,7 +1,6 @@
 " ================ Plugins ==================== {{{
 call plug#begin( '~/.config/nvim/bundle')
 
-Plug 'christoomey/vim-tmux-navigator'
 Plug 'w0rp/ale', { 'do': 'npm install -g prettier' }
 Plug 'nelstrom/vim-visual-star-search'
 Plug 'Raimondi/delimitMate'
@@ -57,7 +56,6 @@ set wrap                                                                        
 set linebreak                                                                   "Wrap lines at convenient points
 set listchars=tab:\ \ ,trail:·                                                  "Set trails for tabs and spaces
 set list                                                                        "Enable listchars
-set lazyredraw                                                                  "Do not redraw on registers and macros
 set background=dark                                                             "Set background to dark
 set hidden                                                                      "Hide buffers in background
 set conceallevel=2 concealcursor=i                                              "neosnippets conceal marker
@@ -141,20 +139,21 @@ set sidescroll=5
 " ================ Statusline ======================== {{{
 
 hi User1 guifg=#FF0000 guibg=#455A64
+hi User2 gui=NONE guibg=#455A64
 set statusline=\ %{toupper(mode())}                                             "Mode
-set statusline+=\ \│\ %{fugitive#head()}                                        "Git branch
-set statusline+=\ \│\ %4F                                                       "File path
+set statusline+=\ %2*\│%*\ %{fugitive#head()}                                   "Git branch
+set statusline+=\ %2*\│%*\ %4F                                                  "File path
 set statusline+=\ %1*%m%*                                                       "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
 set statusline+=\ %r                                                            "Read only indicator
 set statusline+=\ %q                                                            "Quickfix list indicator
 set statusline+=\ %=                                                            "Start right side layout
 set statusline+=\ %{&enc}                                                       "Encoding
-set statusline+=\ \│\ %y                                                        "Filetype
-set statusline+=\ \│\ %p%%                                                      "Percentage
-set statusline+=\ \│\ %l/%L                                                     "Current line number/Total line numbers
-set statusline+=\ \│\ %c                                                        "Column number
-set statusline+=\ \│%1*%{ALEGetStatusLine()}%*                                  "Errors count
+set statusline+=\ %2*\│%*\ %y                                                   "Filetype
+set statusline+=\ %2*\│%*\ %p%%                                                 "Percentage
+set statusline+=\ %2*\│%*\ %l/%L                                                "Current line number/Total line numbers
+set statusline+=\ %2*\│%*\ %c                                                   "Column number
+set statusline+=\ %2*\│%*%1*%{ALEGetStatusLine()}%*                             "Errors count
 
 "}}}
 " ================ Abbreviations ==================== {{{
@@ -201,6 +200,12 @@ endfunction
 nmap <Leader>c gcc
 " Line comment command
 xmap <Leader>c gc
+
+" Easier window navigation
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
 
 " Map save to Ctrl + S
 map <c-s> :w<CR>
