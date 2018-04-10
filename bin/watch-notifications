@@ -1,0 +1,36 @@
+#! /usr/bin/env python
+
+import subprocess
+import os
+
+
+stdout = 0
+
+
+def print_count(count):
+    file = open('/home/kristijan/neovim-config/bin/notifications_count', 'w')
+    if count > 0:
+        file.write(str(count))
+    else:
+        file.write('0')
+
+
+p = subprocess.Popen(
+    ["dbus-monitor", "\"interface='org.freedesktop.Notifications'\"", "|", "grep", "member=Notify"],
+    shell=True,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT
+)
+
+while True:
+    line = p.stdout.readline()
+    if line.find("member=Notify") != -1:
+        stdout += 1
+        print_count(stdout)
+        continue
+    if line.find("member=NotificationClosed") != -1:
+        stdout = max(0, stdout - 1)
+        print_count(stdout)
+        continue
+    if line == '' and p.poll() is not None:
+        break
