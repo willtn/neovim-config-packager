@@ -421,4 +421,5 @@ let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki'}]                            
 
 call CustomDiffColors()                                                         "Use custom diff colors
 " }}}
+"
 " vim:foldenable:foldmethod=marker
