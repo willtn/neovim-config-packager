@@ -4,7 +4,6 @@ if exists('*minpac#init')
 
   " Manually loaded plugins
   call minpac#add('k-takata/minpac', {'type': 'opt'})
-  call minpac#add('joshdick/onedark.vim', { 'type': 'opt' })
   call minpac#add('justinmk/vim-dirvish', { 'type': 'opt' })
   call minpac#add('andymass/vim-matchup', { 'type': 'opt' })
 
@@ -31,13 +30,13 @@ if exists('*minpac#init')
   call minpac#add('kristijanhusak/vim-dirvish-git')
   call minpac#add('kristijanhusak/deoplete-phpactor')
   call minpac#add('vimwiki/vimwiki')
+  call minpac#add('lifepillar/vim-solarized8')
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update()
 command! PackClean  packadd minpac | source $MYVIMRC | call minpac#clean()
 
 " Plugins that must be loaded before all other plugins
-silent! packadd onedark.vim
 silent! packadd vim-dirvish
 silent! packadd vim-matchup
 
@@ -46,7 +45,7 @@ silent! packadd vim-matchup
 
 let g:mapleader = ','                                                           "Change leader to a comma
 
-let g:onedark_terminal_italics = 1                                              "Enable italics
+let g:solarized_extra_hi_groups = 1
 
 set termguicolors
 set title                                                                       "change the terminal's title
@@ -87,7 +86,7 @@ set updatetime=500                                                              
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 
 syntax on
-silent! colorscheme onedark
+silent! colorscheme solarized8
 
 " }}}
 " ================ Turn Off Swap Files ============== {{{
@@ -185,7 +184,7 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-hi User1 guifg=#FF0000 guibg=#2C323C gui=bold
+hi User1 guifg=#FF0000 guibg=#839496 gui=bold
 hi User2 guifg=#FFFFFF guibg=#FF1111 gui=bold
 hi User3 guifg=#2C323C guibg=#E5C07B gui=bold
 set statusline=\ %{toupper(mode())}                                             "Mode
@@ -463,6 +462,5 @@ let g:javascript_plugin_jsdoc = 1                                               
 
 let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki'}]                            "Use dropbox folder for easier syncing of wiki
 
-call CustomDiffColors()                                                         "Use custom diff colors
 " }}}
 " vim:foldenable:foldmethod=marker
