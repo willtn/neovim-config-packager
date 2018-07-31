@@ -6,7 +6,6 @@ if exists('*minpac#init')
   call minpac#add('k-takata/minpac', {'type': 'opt'})
 
   " Auto loaded plugins
-  call minpac#add('Shougo/deoplete.nvim')
   call minpac#add('Shougo/neosnippet')
   call minpac#add('w0rp/ale', { 'do': '!npm install -g prettier' })
   call minpac#add('Raimondi/delimitMate')
@@ -25,7 +24,6 @@ if exists('*minpac#init')
   call minpac#add('phpactor/phpactor', { 'do': '!composer install' })
   call minpac#add('kristijanhusak/vim-js-file-import')
   call minpac#add('kristijanhusak/vim-dirvish-git')
-  call minpac#add('kristijanhusak/deoplete-phpactor')
   call minpac#add('vimwiki/vimwiki')
   call minpac#add('editorconfig/editorconfig-vim')
   call minpac#add('morhetz/gruvbox')
@@ -36,6 +34,13 @@ if exists('*minpac#init')
   call minpac#add('autozimu/LanguageClient-neovim', { 'do': '!bash install.sh' })
   call minpac#add('soywod/vim-keepeye')
   call minpac#add('wellle/targets.vim')
+  call minpac#add('roxma/nvim-yarp')
+  call minpac#add('ncm2/ncm2')
+  call minpac#add('ncm2/ncm2-bufword')
+  call minpac#add('ncm2/ncm2-path')
+  call minpac#add('ncm2/ncm2-tmux')
+  call minpac#add('ncm2/ncm2-tagprefix')
+  call minpac#add('phpactor/ncm2-phpactor')
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update() | call minpac#status()
@@ -91,6 +96,8 @@ set grepprg=rg\ --vimgrep                                                       
 set tagcase=smart                                                               "Use smarcase for tags
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
+set shortmess+=c
+set completeopt=noinsert,menuone,noselect
 
 syntax on
 silent! colorscheme gruvbox
@@ -138,6 +145,7 @@ augroup vimrc
   autocmd InsertLeave * set cul                                               "Add cursorline highlight in normal mode
   autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
   autocmd FileType html,css,javascript.jsx EmmetInstall
+  autocmd BufEnter * call ncm2#enable_for_buffer()
 augroup END
 
 augroup php
@@ -350,15 +358,17 @@ nnoremap j gj
 nnoremap k gk
 
 " Expand snippets on tab if snippets exists, otherwise do autocompletion
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
-\ : pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 " If popup window is visible do autocompletion from back
-imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Fix for jumping over placeholders for neosnippet
 smap <expr><TAB> neosnippet#jumpable() ?
 \ "\<Plug>(neosnippet_jump)"
 \: "\<TAB>"
+
+imap <expr><CR> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\ : "\<Plug>delimitMateCR"
 
 " Map for Escape key
 inoremap jj <Esc>
@@ -457,13 +467,10 @@ let g:dirvish_mode = ':sort ,^.*[\/],'                                          
 let g:user_emmet_leader_key = '<c-e>'                                           "Change trigger emmet key
 let g:user_emmet_install_global = 0                                             "Load emmet on demand
 
-let g:deoplete#enable_at_startup = 1                                            "Enable deoplete on startup
-let g:deoplete#camel_case = 1                                                   "Autocomplete files relative to current buffer path
-let g:deoplete#file#enable_buffer_path = 1                                      "Show only 30 entries in list and allow smart case autocomplete
+let g:ncm2#complete_length = [[1, 2], [7, 1]]
 
 let g:neosnippet#disable_runtime_snippets = {'_' : 1}                           "Snippets setup
 let g:neosnippet#snippets_directory = ['~/.config/nvim/snippets']               "Snippets directory
-
 let g:delimitMate_expand_cr = 1                                                 "Auto indent on enter
 
 let g:ale_linters = {'javascript': ['eslint']}                                  "Lint js with eslint
