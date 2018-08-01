@@ -6,7 +6,6 @@ if exists('*minpac#init')
   call minpac#add('k-takata/minpac', {'type': 'opt'})
 
   " Auto loaded plugins
-  call minpac#add('Shougo/neosnippet')
   call minpac#add('w0rp/ale', { 'do': '!npm install -g prettier' })
   call minpac#add('Raimondi/delimitMate')
   call minpac#add('manasthakur/vim-commentor')
@@ -41,6 +40,9 @@ if exists('*minpac#init')
   call minpac#add('ncm2/ncm2-tmux')
   call minpac#add('ncm2/ncm2-tagprefix')
   call minpac#add('phpactor/ncm2-phpactor')
+  call minpac#add('ncm2/ncm2-ultisnips')
+  call minpac#add('SirVer/ultisnips')
+  call minpac#add('honza/vim-snippets')
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update() | call minpac#status()
@@ -357,17 +359,14 @@ tnoremap <c-Space> <C-\><C-n><C-w>p
 nnoremap j gj
 nnoremap k gk
 
-" Expand snippets on tab if snippets exists, otherwise do autocompletion
+" Do autocompletion
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 " If popup window is visible do autocompletion from back
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Fix for jumping over placeholders for neosnippet
-smap <expr><TAB> neosnippet#jumpable() ?
-\ "\<Plug>(neosnippet_jump)"
-\: "\<TAB>"
 
-imap <expr><CR> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
+imap <expr><CR> ncm2_ultisnips#completed_is_snippet() ?
+\ "\<Plug>(ncm2_ultisnips_expand_completed)"
 \ : "\<Plug>delimitMateCR"
 
 " Map for Escape key
@@ -468,9 +467,9 @@ let g:user_emmet_leader_key = '<c-e>'                                           
 let g:user_emmet_install_global = 0                                             "Load emmet on demand
 
 let g:ncm2#complete_length = [[1, 2], [7, 1]]
+let g:ncm2#matcher = 'substrfuzzy'
+let g:ncm2_ultisnips#source_override = { 'priority': 10 }
 
-let g:neosnippet#disable_runtime_snippets = {'_' : 1}                           "Snippets setup
-let g:neosnippet#snippets_directory = ['~/.config/nvim/snippets']               "Snippets directory
 let g:delimitMate_expand_cr = 1                                                 "Auto indent on enter
 
 let g:ale_linters = {'javascript': ['eslint']}                                  "Lint js with eslint
@@ -492,6 +491,9 @@ let g:LanguageClient_serverCommands = {
 \ 'javascript.jsx': ['javascript-typescript-stdio'],
 \ 'typescript': ['javascript-typescript-stdio'],
 \ }
+
+let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+let g:UltiSnipsJumpForwardTrigger = "<TAB>"
 
 let g:keepeye_start = v:true                                                    "Start keepeye on vim enter
 let g:keepeye_timer = 2100                                                      "Remind every 35 min
