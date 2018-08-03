@@ -37,7 +37,6 @@ if exists('*minpac#init')
   call minpac#add('ncm2/ncm2')
   call minpac#add('ncm2/ncm2-bufword')
   call minpac#add('ncm2/ncm2-path')
-  call minpac#add('ncm2/ncm2-tmux')
   call minpac#add('ncm2/ncm2-tagprefix')
   call minpac#add('phpactor/ncm2-phpactor')
   call minpac#add('ncm2/ncm2-ultisnips')
@@ -148,6 +147,7 @@ augroup vimrc
   autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
   autocmd FileType html,css,javascript.jsx EmmetInstall
   autocmd BufEnter * call ncm2#enable_for_buffer()
+  autocmd FileType dirvish call DirvishMappings()
 augroup END
 
 augroup php
@@ -165,16 +165,6 @@ augroup javascript
   autocmd FileType javascript xmap <buffer><silent><C-]> <Plug>(JsGotoDefinition)
   autocmd FileType javascript nmap <buffer><silent><Leader>] <C-W>v<Plug>(JsGotoDefinition)
   autocmd FileType javascript xmap <buffer><silent><Leader>] <C-W>vgv<Plug>(JsGotoDefinition)
-augroup END
-
-augroup dirvish
-  autocmd!
-  autocmd FileType dirvish nnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
-  autocmd FileType dirvish nnoremap <silent><buffer> s :call dirvish#open('vsplit', 1)<CR>
-  autocmd FileType dirvish xnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
-  autocmd FileType dirvish nmap <silent><buffer> u <Plug>(dirvish_up)
-  autocmd FileType dirvish nmap <silent><buffer><Leader>n <Plug>(dirvish_quit)
-  autocmd FileType dirvish silent! unmap <buffer> <C-p>
 augroup END
 
 augroup numbertoggle
@@ -327,6 +317,17 @@ function! CloseBuffer(...) abort
     return execute(l:command)
   endif
   return execute('q'.l:bang)
+endfunction
+
+function! DirvishMappings() abort
+  nnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
+  nnoremap <silent><buffer> s :call dirvish#open('vsplit', 1)<CR>
+  xnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
+  nmap <silent><buffer> u <Plug>(dirvish_up)
+  nmap <silent><buffer><Leader>n <Plug>(dirvish_quit)
+  silent! unmap <buffer> <C-p>
+  nnoremap <silent><buffer><expr>j line('.') == line('$') ? 'gg' : 'j'
+  nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
 endfunction
 
 " }}}
@@ -492,8 +493,8 @@ let g:LanguageClient_serverCommands = {
 \ 'typescript': ['javascript-typescript-stdio'],
 \ }
 
-let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
-let g:UltiSnipsJumpForwardTrigger = "<TAB>"
+let g:UltiSnipsExpandTrigger = '<Plug>(ultisnips_expand)'
+let g:UltiSnipsJumpForwardTrigger = '<TAB>'
 
 let g:keepeye_start = v:true                                                    "Start keepeye on vim enter
 let g:keepeye_timer = 2100                                                      "Remind every 35 min
