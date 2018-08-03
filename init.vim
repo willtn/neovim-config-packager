@@ -148,6 +148,7 @@ augroup vimrc
   autocmd FileType html,css,javascript.jsx EmmetInstall
   autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd FileType dirvish call DirvishMappings()
+  autocmd BufWritePre,FileWritePre * call mkdir(expand('<afile>:p:h'), 'p')
 augroup END
 
 augroup php
