@@ -31,7 +31,6 @@ if exists('*minpac#init')
   call minpac#add('haya14busa/vim-asterisk')
   call minpac#add('osyo-manga/vim-anzu')
   call minpac#add('autozimu/LanguageClient-neovim', { 'do': '!bash install.sh' })
-  call minpac#add('soywod/vim-keepeye')
   call minpac#add('wellle/targets.vim')
   call minpac#add('roxma/nvim-yarp')
   call minpac#add('ncm2/ncm2')
@@ -457,6 +456,9 @@ nnoremap <Leader>R :ALEFix<CR>
 " Close all other buffers except current one
 nnoremap <Leader>db :silent w <BAR> :silent %bd <BAR> e#<CR>
 
+nmap gx <Plug>NetrwBrowseX
+nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
+
 " }}}
 " ================ Plugins setups ======================== {{{
 
@@ -496,11 +498,6 @@ let g:LanguageClient_serverCommands = {
 
 let g:UltiSnipsExpandTrigger = '<Plug>(ultisnips_expand)'
 let g:UltiSnipsJumpForwardTrigger = '<TAB>'
-
-let g:keepeye_start = v:true                                                    "Start keepeye on vim enter
-let g:keepeye_timer = 2100                                                      "Remind every 35 min
-hi User4 guifg=#FFFFFF guibg=#FF0000
-let g:keepeye_message_hl_user = 4                                               "Use User4 hl group when showing keepeye message
 
 " }}}
 " vim:foldenable:foldmethod=marker
