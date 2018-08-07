@@ -41,6 +41,7 @@ if exists('*minpac#init')
   call minpac#add('ncm2/ncm2-ultisnips')
   call minpac#add('SirVer/ultisnips')
   call minpac#add('honza/vim-snippets')
+  call minpac#add('wsdjeg/FlyGrep.vim')
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update() | call minpac#status()
@@ -458,6 +459,8 @@ nnoremap <Leader>db :silent w <BAR> :silent %bd <BAR> e#<CR>
 
 nmap gx <Plug>NetrwBrowseX
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
+
+nnoremap <Leader>/ :FlyGrep<CR>
 
 " }}}
 " ================ Plugins setups ======================== {{{
