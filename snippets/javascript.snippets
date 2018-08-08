@@ -1,0 +1,46 @@
+snippet cl "console.log"
+	console.log(${0});
+
+snippet mtd "method"
+	${1:methodName}(${2:args}) {
+		${0}
+	}
+
+snippet creact "react class"
+	import React, { Component } from 'react'
+
+	export default class ${1} extends Component {
+		constructor(props) {
+			super(props)
+		}
+
+		render() {
+			return (${2})
+		}
+	}
+
+snippet cnode "node class"
+	class ${1:className} {
+		constructor(${2:deps}) {
+			this._$2 = $2;
+		}
+
+		${3:method}(${4:params}) {
+			${0}
+		}
+	}
+
+	module.exports = $1;
+
+snippet amtd "async method"
+	async ${1:method}(${2:params}) {
+		${0}
+	}
+
+snippet tc "try/catch"
+	try {
+		${1:ok}${0}
+	} catch (e) {
+		${2:err}
+	}
+

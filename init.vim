@@ -15,7 +15,6 @@ if exists('*minpac#init')
   call minpac#add('AndrewRadev/splitjoin.vim')
   call minpac#add('airblade/vim-gitgutter')
   call minpac#add('sheerun/vim-polyglot')
-  call minpac#add('mattn/emmet-vim')
   call minpac#add('dyng/ctrlsf.vim')
   call minpac#add('junegunn/fzf', { 'do': '!./install --all && ln -s $(pwd) ~/.fzf'})
   call minpac#add('junegunn/fzf.vim')
@@ -40,7 +39,6 @@ if exists('*minpac#init')
   call minpac#add('phpactor/ncm2-phpactor')
   call minpac#add('ncm2/ncm2-ultisnips')
   call minpac#add('SirVer/ultisnips')
-  call minpac#add('honza/vim-snippets')
   call minpac#add('wsdjeg/FlyGrep.vim')
 endif
 
@@ -145,7 +143,6 @@ augroup vimrc
   autocmd InsertEnter * set nocul                                             "Remove cursorline highlight
   autocmd InsertLeave * set cul                                               "Add cursorline highlight in normal mode
   autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
-  autocmd FileType html,css,javascript.jsx EmmetInstall
   autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd FileType dirvish call DirvishMappings()
   autocmd BufWritePre,FileWritePre * call mkdir(expand('<afile>:p:h'), 'p')
@@ -217,12 +214,12 @@ set statusline+=\ %w                                                            
 set statusline+=\ %r                                                            "Read only indicator
 set statusline+=\ %q                                                            "Quickfix list indicator
 set statusline+=\ %=                                                            "Start right side layout
+set statusline+=\ %{StatuslineFn('anzu#search_status',1)}
 set statusline+=\ %{&enc}                                                       "Encoding
 set statusline+=\ \│\ %y                                                        "Filetype
 set statusline+=\ \│\ %p%%                                                      "Percentage
 set statusline+=\ \│\ %c                                                        "Column number
 set statusline+=\ \│\ %l/%L                                                     "Current line number/Total line numbers
-set statusline+=\ %{StatuslineFn('gutentags#statusline','\│\ ')}                "Tags status
 set statusline+=\ %2*%{AleStatusline('error')}%*                                "Errors count
 set statusline+=%3*%{AleStatusline('warning')}%*                                "Warning count
 
@@ -245,7 +242,14 @@ cnoreabbrev E e
 
 function! StatuslineFn(name, ...) abort
   try
-    return call(a:name, a:000)
+    let l:result = call(a:name, [])
+    let l:append_separator = a:0 > 0
+
+    if !empty(l:result) && l:append_separator
+      let l:result = l:result.' │'
+    endif
+
+    return l:result
   catch
     return ''
   endtry
@@ -353,7 +357,6 @@ nnoremap <c-h> <C-w>h
 nnoremap <c-j> <C-w>j
 nnoremap <c-k> <C-w>k
 nnoremap <c-l> <C-w>l
-nnoremap <c-Space> <C-w>p
 tnoremap <c-h> <C-\><C-n><C-w>h
 tnoremap <c-l> <C-\><C-n><C-w>l
 tnoremap <c-Space> <C-\><C-n><C-w>p
@@ -436,12 +439,12 @@ xnoremap <expr> _ &diff ? ':diffget<BAR>diffupdate<CR>' : '_'
 nnoremap <expr> R &diff ? ':diffupdate<CR>' : 'R'
 
 " Better search status
-nmap n <Plug>(anzu-n-with-echo)zz
-nmap N <Plug>(anzu-N-with-echo)zz
-map * <Plug>(asterisk-z*)<Plug>(anzu-update-search-status-with-echo)
-map # <Plug>(asterisk-z#)<Plug>(anzu-update-search-status-with-echo)
-map g* <Plug>(asterisk-gz*)<Plug>(anzu-update-search-status-with-echo)
-map g# <Plug>(asterisk-gz#)<Plug>(anzu-update-search-status-with-echo)
+nmap n <Plug>(anzu-n)zz
+nmap N <Plug>(anzu-N)zz
+map * <Plug>(asterisk-z*)<Plug>(anzu-update-search-status)
+map # <Plug>(asterisk-z#)<Plug>(anzu-update-search-status)
+map g* <Plug>(asterisk-gz*)<Plug>(anzu-update-search-status)
+map g# <Plug>(asterisk-gz#)<Plug>(anzu-update-search-status)
 
 " Language client context menu
 nnoremap <Leader>r :call LanguageClient_contextMenu()<CR>
@@ -458,8 +461,7 @@ nnoremap <Leader>R :ALEFix<CR>
 " Close all other buffers except current one
 nnoremap <Leader>db :silent w <BAR> :silent %bd <BAR> e#<CR>
 
-nmap gx <Plug>NetrwBrowseX
-nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
+nnoremap gx :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
 
 nnoremap <Leader>/ :FlyGrep<CR>
 
@@ -470,9 +472,6 @@ let g:ctrlsf_auto_close = 0                                                     
 let g:ctrlsf_mapping = {'vsplit': 's'}                                          "Mapping for opening search result in vertical split
 
 let g:dirvish_mode = ':sort ,^.*[\/],'                                          "List directories first in dirvish
-
-let g:user_emmet_leader_key = '<c-e>'                                           "Change trigger emmet key
-let g:user_emmet_install_global = 0                                             "Load emmet on demand
 
 let g:ncm2#complete_length = [[1, 2], [7, 1]]
 let g:ncm2#matcher = 'substrfuzzy'

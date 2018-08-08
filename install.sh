@@ -25,6 +25,7 @@ setup_neovim() {
   && rm -rf ~/.config/nvim \
   && git clone -b feature/status-list https://github.com/kristijanhusak/minpac.git ~/.config/nvim/pack/minpac/opt/minpac \
   && ln -s $(pwd)/init.vim ~/.config/nvim/init.vim \
+  && ln -s $(pwd)/snippets ~/.config/nvim/snippets \
   && nvim -c 'packadd minpac | source $MYVIMRC | echo "Installing plugins..." | call minpac#update("", { "do": "UpdateRemotePlugins | qa!"})'
 }
 
