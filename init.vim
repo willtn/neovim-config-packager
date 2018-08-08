@@ -206,15 +206,14 @@ silent exe 'hi User1 guifg=#FF0000 guibg='.s:statuslineBg.' gui=bold'
 hi User2 guifg=#FFFFFF guibg=#FF1111 gui=bold
 hi User3 guifg=#2C323C guibg=#E5C07B gui=bold
 set statusline=\ %{toupper(mode())}                                             "Mode
-set statusline+=\ \│\ %{StatuslineFn('fugitive#head')}                          "Git branch
-set statusline+=%{GitFileStatus()}                                              "Git file status
-set statusline+=\ \│\ %4F                                                       "File path
+set statusline+=\ \│\ %{StatuslineFn('GitFileStatus',1)}                        "Git branch and status
+set statusline+=\ %f                                                            "File path
 set statusline+=\ %1*%m%*                                                       "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
 set statusline+=\ %r                                                            "Read only indicator
 set statusline+=\ %q                                                            "Quickfix list indicator
 set statusline+=\ %=                                                            "Start right side layout
-set statusline+=\ %{StatuslineFn('anzu#search_status',1)}
+set statusline+=\ %{StatuslineFn('anzu#search_status',1)}                       "Search status
 set statusline+=\ %{&enc}                                                       "Encoding
 set statusline+=\ \│\ %y                                                        "Filetype
 set statusline+=\ \│\ %p%%                                                      "Percentage
@@ -294,17 +293,16 @@ function! AleStatusline(type)
 endfunction
 
 function! GitFileStatus()
+  let l:head = fugitive#head()
   if !exists('b:gitgutter')
-    return ''
+    return l:head
   endif
   let [l:added, l:modified, l:removed] = get(b:gitgutter, 'summary', [0, 0, 0])
   let l:result = l:added == 0 ? '' : ' +'.l:added
   let l:result .= l:modified == 0 ? '' : ' ~'.l:modified
   let l:result .= l:removed == 0 ? '' : ' -'.l:removed
-  if l:result !=? ''
-    return ' '.l:result
-  endif
-  return l:result
+
+  return join(filter([l:head, l:result], {-> !empty(v:val) }), '')
 endfunction
 
 function! CloseBuffer(...) abort
