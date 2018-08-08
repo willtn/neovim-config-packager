@@ -238,6 +238,7 @@ cnoreabbrev Qa qa
 cnoreabbrev Bd bd
 cnoreabbrev wrap set wrap
 cnoreabbrev nowrap set nowrap
+cnoreabbrev E e
 
 " }}}
 " ================ Functions ======================== {{{
