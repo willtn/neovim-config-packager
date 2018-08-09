@@ -146,6 +146,7 @@ augroup vimrc
   autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd FileType dirvish call DirvishMappings()
   autocmd BufWritePre,FileWritePre * call mkdir(expand('<afile>:p:h'), 'p')
+  autocmd BufEnter,BufWritePost,TextChanged,TextChangedI * call HighlightModified()
 augroup END
 
 augroup php
@@ -199,28 +200,24 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-let s:statuslineBgColor = synIDattr(synIDtrans(hlID('StatusLine')), 'reverse') ? 'fg' : 'bg'
-let s:statuslineBg = synIDattr(synIDtrans(hlID('StatusLine')), s:statuslineBgColor)
-silent exe 'hi User1 guifg=#FF0000 guibg='.s:statuslineBg.' gui=bold'
+hi User1 guifg=#282828
+hi User2 guibg=#665c54 guifg=#ebdbb2
 
-hi User2 guifg=#FFFFFF guibg=#FF1111 gui=bold
-hi User3 guifg=#2C323C guibg=#E5C07B gui=bold
-set statusline=\ %{toupper(mode())}                                             "Mode
-set statusline+=\ \│\ %{StatuslineFn('GitFileStatus',1)}                        "Git branch and status
-set statusline+=\ %f                                                            "File path
-set statusline+=\ %1*%m%*                                                       "Modified indicator
+set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
+set statusline+=\ %*%2*\ %{StatuslineFn('GitFileStatus')}\ %*                   "Git branch and status
+set statusline+=%3*\ %f                                                         "File path
+set statusline+=\ %m                                                            "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
 set statusline+=\ %r                                                            "Read only indicator
 set statusline+=\ %q                                                            "Quickfix list indicator
 set statusline+=\ %=                                                            "Start right side layout
-set statusline+=\ %{StatuslineFn('anzu#search_status',1)}                       "Search status
-set statusline+=\ %{&enc}                                                       "Encoding
-set statusline+=\ \│\ %y                                                        "Filetype
+set statusline+=\ %{StatuslineFn('anzu#search_status')}                         "Search status
+set statusline+=\ %2*\ %{&ft}                                                   "Filetype
 set statusline+=\ \│\ %p%%                                                      "Percentage
 set statusline+=\ \│\ %c                                                        "Column number
 set statusline+=\ \│\ %l/%L                                                     "Current line number/Total line numbers
-set statusline+=\ %2*%{AleStatusline('error')}%*                                "Errors count
-set statusline+=%3*%{AleStatusline('warning')}%*                                "Warning count
+set statusline+=\ %*%#Error#%{AleStatusline('error')}%*                         "Errors count
+set statusline+=%#DiffText#%{AleStatusline('warning')}%*                        "Warning count
 
 "}}}
 " ================ Abbreviations ==================== {{{
@@ -239,16 +236,9 @@ cnoreabbrev E e
 " }}}
 " ================ Functions ======================== {{{
 
-function! StatuslineFn(name, ...) abort
+function! StatuslineFn(name) abort
   try
-    let l:result = call(a:name, [])
-    let l:append_separator = a:0 > 0
-
-    if !empty(l:result) && l:append_separator
-      let l:result = l:result.' │'
-    endif
-
-    return l:result
+    return call(a:name, [])
   catch
     return ''
   endtry
@@ -334,6 +324,51 @@ function! DirvishMappings() abort
   nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
 endfunction
 
+function! HighlightModified() abort
+  let l:is_modified = getwinvar(winnr(), '&mod') && getbufvar(bufnr(''), '&mod')
+
+  if empty(l:is_modified)
+    hi User3 guifg=#ebdbb2 guibg=#504945
+    return ''
+  endif
+
+  hi User3 guifg=#ebdbb2 guibg=#fb4934
+
+
+  return ''
+endfunction
+
+function! StatuslineMode() abort
+  let l:mode = mode()
+  call ModeHighlight(l:mode)
+  let l:modeMap = {
+  \ 'n'  : 'NORMAL',
+  \ 'i'  : 'INSERT',
+  \ 'R'  : 'REPLACE',
+  \ 'v'  : 'VISUAL',
+  \ 'V'  : 'V-LINE',
+  \ 'c'  : 'COMMAND',
+  \ '' : 'V-BLOCK',
+  \ 's'  : 'SELECT',
+  \ 'S'  : 'S-LINE',
+  \ '' : 'S-BLOCK',
+  \ 't'  : 'TERMINAL',
+  \ }
+
+  return get(l:modeMap, l:mode, 'UNKNOWN')
+endfunction
+
+function! ModeHighlight(mode) abort
+  if a:mode ==? 'i'
+    hi User1 guibg=#83a598
+  elseif a:mode =~? '\(v\|V\|\)'
+    hi User1 guibg=#fe8019
+  elseif a:mode ==? 'R'
+    hi User1 guibg=#8ec07c
+  else
+    hi User1 guibg=#928374
+  endif
+endfunction
 " }}}
 " ================ Custom mappings ======================== {{{
 
