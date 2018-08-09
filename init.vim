@@ -131,7 +131,6 @@ set smartindent
 set nofoldenable
 set colorcolumn=80
 set foldmethod=syntax
-set foldlevelstart=5
 
 " }}}
 " ================ Auto commands ====================== {{{
@@ -200,11 +199,8 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-hi User1 guifg=#282828
-hi User2 guibg=#665c54 guifg=#ebdbb2
-
 set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
-set statusline+=\ %*%2*\ %{StatuslineFn('GitFileStatus')}\ %*                   "Git branch and status
+set statusline+=\ %*%2*\ %{StatuslineFn('GitStatusline')}\ %*                   "Git branch and status
 set statusline+=\ %f                                                            "File path
 set statusline+=\ %m                                                            "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
@@ -219,22 +215,8 @@ set statusline+=\ \│\ %l/%L                                                   
 set statusline+=\ %*%#Error#%{AleStatusline('error')}%*                         "Errors count
 set statusline+=%#DiffText#%{AleStatusline('warning')}%*                        "Warning count
 
-"}}}
-" ================ Abbreviations ==================== {{{
-
-cnoreabbrev Wq wq
-cnoreabbrev WQ wq
-cnoreabbrev Wqa wqa
-cnoreabbrev W w
-cnoreabbrev Q q
-cnoreabbrev Qa qa
-cnoreabbrev Bd bd
-cnoreabbrev wrap set wrap
-cnoreabbrev nowrap set nowrap
-cnoreabbrev E e
-
-" }}}
-" ================ Functions ======================== {{{
+hi User1 guifg=#282828
+hi User2 guibg=#665c54 guifg=#ebdbb2
 
 function! StatuslineFn(name) abort
   try
@@ -244,27 +226,7 @@ function! StatuslineFn(name) abort
   endtry
 endfunction
 
-
-function! StripTrailingWhitespaces()
-  if &modifiable
-    let l:l = line('.')
-    let l:c = col('.')
-    call execute('%s/\s\+$//e')
-    call histdel('/', -1)
-    call cursor(l:l, l:c)
-  endif
-endfunction
-
-function! Search(...)
-  let l:default = a:0 > 0 ? expand('<cword>') : ''
-  let l:term = input('Search for: ', l:default)
-  if l:term !=? ''
-    let l:path = input('Path: ', '', 'file')
-    execute 'CtrlSF "'.l:term.'" '.l:path
-  endif
-endfunction
-
-function! AleStatusline(type)
+function! AleStatusline(type) abort
   try
     let l:count = ale#statusline#Count(bufnr(''))
     if a:type ==? 'error' && l:count['error']
@@ -282,7 +244,7 @@ function! AleStatusline(type)
   endtry
 endfunction
 
-function! GitFileStatus()
+function! GitStatusline() abort
   let l:head = fugitive#head()
   if !exists('b:gitgutter')
     return l:head
@@ -293,35 +255,6 @@ function! GitFileStatus()
   let l:result .= l:removed == 0 ? '' : ' -'.l:removed
 
   return join(filter([l:head, l:result], {-> !empty(v:val) }), '')
-endfunction
-
-function! CloseBuffer(...) abort
-  if &buftype !=? ''
-    return execute('q!')
-  endif
-  let l:windowCount = winnr('$')
-  let l:totalBuffers = len(getbufinfo({ 'buflisted': 1 }))
-  let l:noSplits = l:windowCount ==? 1
-  let l:bang = a:0 > 0 ? '!' : ''
-  if l:totalBuffers > 1 && l:noSplits
-    let l:command = 'bp'
-    if buflisted(bufnr('#'))
-      let l:command .= '|bd'.l:bang.'#'
-    endif
-    return execute(l:command)
-  endif
-  return execute('q'.l:bang)
-endfunction
-
-function! DirvishMappings() abort
-  nnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
-  nnoremap <silent><buffer> s :call dirvish#open('vsplit', 1)<CR>
-  xnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
-  nmap <silent><buffer> u <Plug>(dirvish_up)
-  nmap <silent><buffer><Leader>n <Plug>(dirvish_quit)
-  silent! unmap <buffer> <C-p>
-  nnoremap <silent><buffer><expr>j line('.') == line('$') ? 'gg' : 'j'
-  nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
 endfunction
 
 function! HighlightModified() abort
@@ -367,6 +300,72 @@ function! ModeHighlight(mode) abort
     hi User1 guibg=#928374
   endif
 endfunction
+
+"}}}
+" ================ Abbreviations ==================== {{{
+
+cnoreabbrev Wq wq
+cnoreabbrev WQ wq
+cnoreabbrev Wqa wqa
+cnoreabbrev W w
+cnoreabbrev Q q
+cnoreabbrev Qa qa
+cnoreabbrev Bd bd
+cnoreabbrev wrap set wrap
+cnoreabbrev nowrap set nowrap
+cnoreabbrev E e
+
+" }}}
+" ================ Functions ======================== {{{
+
+function! StripTrailingWhitespaces()
+  if &modifiable
+    let l:l = line('.')
+    let l:c = col('.')
+    call execute('%s/\s\+$//e')
+    call histdel('/', -1)
+    call cursor(l:l, l:c)
+  endif
+endfunction
+
+function! Search(...)
+  let l:default = a:0 > 0 ? expand('<cword>') : ''
+  let l:term = input('Search for: ', l:default)
+  if l:term !=? ''
+    let l:path = input('Path: ', '', 'file')
+    execute 'CtrlSF "'.l:term.'" '.l:path
+  endif
+endfunction
+
+function! CloseBuffer(...) abort
+  if &buftype !=? ''
+    return execute('q!')
+  endif
+  let l:windowCount = winnr('$')
+  let l:totalBuffers = len(getbufinfo({ 'buflisted': 1 }))
+  let l:noSplits = l:windowCount ==? 1
+  let l:bang = a:0 > 0 ? '!' : ''
+  if l:totalBuffers > 1 && l:noSplits
+    let l:command = 'bp'
+    if buflisted(bufnr('#'))
+      let l:command .= '|bd'.l:bang.'#'
+    endif
+    return execute(l:command)
+  endif
+  return execute('q'.l:bang)
+endfunction
+
+function! DirvishMappings() abort
+  nnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
+  nnoremap <silent><buffer> s :call dirvish#open('vsplit', 1)<CR>
+  xnoremap <silent><buffer> o :call dirvish#open('edit', 0)<CR>
+  nmap <silent><buffer> u <Plug>(dirvish_up)
+  nmap <silent><buffer><Leader>n <Plug>(dirvish_quit)
+  silent! unmap <buffer> <C-p>
+  nnoremap <silent><buffer><expr>j line('.') == line('$') ? 'gg' : 'j'
+  nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
+endfunction
+
 " }}}
 " ================ Custom mappings ======================== {{{
 
