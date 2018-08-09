@@ -205,7 +205,7 @@ hi User2 guibg=#665c54 guifg=#ebdbb2
 
 set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
 set statusline+=\ %*%2*\ %{StatuslineFn('GitFileStatus')}\ %*                   "Git branch and status
-set statusline+=%3*\ %f                                                         "File path
+set statusline+=\ %f                                                            "File path
 set statusline+=\ %m                                                            "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
 set statusline+=\ %r                                                            "Read only indicator
@@ -328,13 +328,11 @@ function! HighlightModified() abort
   let l:is_modified = getwinvar(winnr(), '&mod') && getbufvar(bufnr(''), '&mod')
 
   if empty(l:is_modified)
-    hi User3 guifg=#ebdbb2 guibg=#504945
+    hi StatusLine guifg=#ebdbb2 guibg=#504945 gui=NONE
     return ''
   endif
 
-  hi User3 guifg=#ebdbb2 guibg=#fb4934
-
-
+  hi StatusLine guifg=#ebdbb2 guibg=#fb4934 gui=NONE
   return ''
 endfunction
 
