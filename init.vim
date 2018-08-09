@@ -200,7 +200,7 @@ set sidescroll=5
 " ================ Statusline ======================== {{{
 
 set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
-set statusline+=\ %*%2*\ %{StatuslineFn('GitStatusline')}\ %*                   "Git branch and status
+set statusline+=\ %*%2*%{StatuslineFn('GitStatusline')}%*                       "Git branch and status
 set statusline+=\ %f                                                            "File path
 set statusline+=\ %m                                                            "Modified indicator
 set statusline+=\ %w                                                            "Preview indicator
@@ -247,14 +247,14 @@ endfunction
 function! GitStatusline() abort
   let l:head = fugitive#head()
   if !exists('b:gitgutter')
-    return l:head
+    return (empty(l:head) ? '' : printf(' %s ', l:head))
   endif
   let [l:added, l:modified, l:removed] = get(b:gitgutter, 'summary', [0, 0, 0])
   let l:result = l:added == 0 ? '' : ' +'.l:added
   let l:result .= l:modified == 0 ? '' : ' ~'.l:modified
   let l:result .= l:removed == 0 ? '' : ' -'.l:removed
-
-  return join(filter([l:head, l:result], {-> !empty(v:val) }), '')
+  let l:result = join(filter([l:head, l:result], {-> !empty(v:val) }), '')
+  return (empty(l:result) ? '' : printf(' %s ', l:result))
 endfunction
 
 function! HighlightModified() abort
