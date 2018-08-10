@@ -1,45 +1,14 @@
 " ================ Plugins ==================== {{{
 if exists('*minpac#init')
   call minpac#init()
-
   " Manually loaded plugins
   call minpac#add('k-takata/minpac', {'type': 'opt'})
-
   " Auto loaded plugins
-  call minpac#add('w0rp/ale', { 'do': '!npm install -g prettier' })
-  call minpac#add('Raimondi/delimitMate')
-  call minpac#add('manasthakur/vim-commentor')
-  call minpac#add('tpope/vim-surround')
-  call minpac#add('tpope/vim-repeat')
-  call minpac#add('tpope/vim-fugitive')
-  call minpac#add('AndrewRadev/splitjoin.vim')
-  call minpac#add('airblade/vim-gitgutter')
-  call minpac#add('sheerun/vim-polyglot')
-  call minpac#add('dyng/ctrlsf.vim')
-  call minpac#add('junegunn/fzf', { 'do': '!./install --all && ln -s $(pwd) ~/.fzf'})
-  call minpac#add('junegunn/fzf.vim')
-  call minpac#add('ludovicchabant/vim-gutentags')
-  call minpac#add('phpactor/phpactor', { 'do': '!composer install' })
-  call minpac#add('kristijanhusak/vim-js-file-import')
-  call minpac#add('kristijanhusak/vim-dirvish-git')
-  call minpac#add('vimwiki/vimwiki')
-  call minpac#add('editorconfig/editorconfig-vim')
   call minpac#add('morhetz/gruvbox')
   call minpac#add('justinmk/vim-dirvish')
-  call minpac#add('andymass/vim-matchup')
-  call minpac#add('haya14busa/vim-asterisk')
-  call minpac#add('osyo-manga/vim-anzu')
-  call minpac#add('autozimu/LanguageClient-neovim', { 'do': '!bash install.sh' })
-  call minpac#add('wellle/targets.vim')
-  call minpac#add('roxma/nvim-yarp')
-  call minpac#add('ncm2/ncm2')
-  call minpac#add('ncm2/ncm2-bufword')
-  call minpac#add('ncm2/ncm2-path')
-  call minpac#add('ncm2/ncm2-tagprefix')
-  call minpac#add('phpactor/ncm2-phpactor')
-  call minpac#add('ncm2/ncm2-ultisnips')
-  call minpac#add('SirVer/ultisnips')
-  call minpac#add('wsdjeg/FlyGrep.vim')
+  call minpac#add('sheerun/vim-polyglot')
+  call minpac#add('junegunn/fzf', { 'do': '!./install --all && ln -s $(pwd) ~/.fzf'})
+  call minpac#add('junegunn/fzf.vim')
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update() | call minpac#status()
@@ -50,7 +19,6 @@ command! PackStatus packadd minpac | source $MYVIMRC | call minpac#status()
 " ================ General Config ==================== {{{
 
 let g:loaded_netrwPlugin = 1                                                    "Do not load netrw so Dirvish can be autoloaded
-let g:loaded_matchit = 1                                                        "Do not load matchit, use matchup plugin
 
 let g:mapleader = ','                                                           "Change leader to a comma
 
@@ -73,7 +41,7 @@ set ignorecase                                                                  
 set mouse=a                                                                     "Enable mouse usage
 set showmatch                                                                   "Highlight matching bracket
 set nostartofline                                                               "Jump to first non-blank character
-set timeoutlen=1000 ttimeoutlen=0                                               "Reduce Command timeout for faster escape and O
+set ttimeoutlen=0                                                               "Reduce Command timeout for faster escape and O
 set fileencoding=utf-8                                                          "Set utf-8 encoding on write
 set wrap                                                                        "Enable word wrap
 set linebreak                                                                   "Wrap lines at convenient points
@@ -96,7 +64,7 @@ set tagcase=smart                                                               
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 set shortmess+=c
-set completeopt=noinsert,menuone,noselect
+set completeopt=menuone,longest
 
 syntax on
 silent! colorscheme gruvbox
@@ -142,27 +110,23 @@ augroup vimrc
   autocmd InsertEnter * set nocul                                             "Remove cursorline highlight
   autocmd InsertLeave * set cul                                               "Add cursorline highlight in normal mode
   autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
-  autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd FileType dirvish call DirvishMappings()
   autocmd BufWritePre,FileWritePre * call mkdir(expand('<afile>:p:h'), 'p')
   autocmd BufEnter,BufWritePost,TextChanged,TextChangedI * call HighlightModified()
+  autocmd BufWritePost * silent exe '!rg --files | ctags -R --links=no -L -'
 augroup END
 
 augroup php
   autocmd!
   autocmd FileType php setlocal shiftwidth=4 softtabstop=4 tabstop=4
-  autocmd FileType php nmap <buffer><silent><Leader>if :call phpactor#UseAdd()<CR>
-  autocmd FileType php nmap <buffer><silent><Leader>ir :call phpactor#ContextMenu()<CR>
-  autocmd FileType php vmap <buffer><silent><Leader>ie :<C-U>call phpactor#ExtractMethod()<CR>
-  autocmd FileType php nmap <buffer><silent><C-]> :call phpactor#GotoDefinition()<CR>
 augroup END
 
 augroup javascript
   autocmd!
-  autocmd FileType javascript nmap <buffer><silent><C-]> <Plug>(JsGotoDefinition)
-  autocmd FileType javascript xmap <buffer><silent><C-]> <Plug>(JsGotoDefinition)
-  autocmd FileType javascript nmap <buffer><silent><Leader>] <C-W>v<Plug>(JsGotoDefinition)
-  autocmd FileType javascript xmap <buffer><silent><Leader>] <C-W>vgv<Plug>(JsGotoDefinition)
+  autocmd FileType javascript setlocal makeprg=./node_modules/.bin/eslint\ --format\ compact\ %
+  autocmd FileType javascript set errorformat+=%f:\ line\ %l\\,\ col\ %c\\,\ %trror\ -\ %m
+  autocmd Filetype javascript set errorformat+=%f:\ line\ %l\\,\ col\ %c\\,\ %tarning\ -\ %m
+  autocmd Filetype javascript inoremap <buffer>cl<CR> console.log()<Left>
 augroup END
 
 augroup numbertoggle
@@ -199,7 +163,7 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
+set statusline=%1*\ %{StatuslineMode()}                                         "Mode
 set statusline+=\ %*%2*%{StatuslineFn('GitStatusline')}%*                       "Git branch and status
 set statusline+=\ %f                                                            "File path
 set statusline+=\ %m                                                            "Modified indicator
@@ -211,9 +175,7 @@ set statusline+=\ %{StatuslineFn('anzu#search_status')}                         
 set statusline+=\ %2*\ %{&ft}                                                   "Filetype
 set statusline+=\ \│\ %p%%                                                      "Percentage
 set statusline+=\ \│\ %c                                                        "Column number
-set statusline+=\ \│\ %l/%L                                                     "Current line number/Total line numbers
-set statusline+=\ %*%#Error#%{AleStatusline('error')}%*                         "Errors count
-set statusline+=%#DiffText#%{AleStatusline('warning')}%*                        "Warning count
+set statusline+=\ \│\ %l/%L\                                                    "Current line number/Total line numbers
 
 hi User1 guifg=#504945 gui=bold
 hi User2 guibg=#665c54 guifg=#ebdbb2
@@ -226,35 +188,12 @@ function! StatuslineFn(name) abort
   endtry
 endfunction
 
-function! AleStatusline(type) abort
-  try
-    let l:count = ale#statusline#Count(bufnr(''))
-    if a:type ==? 'error' && l:count['error']
-      return printf(' %d E ', l:count['error'])
-    endif
-
-    if a:type ==? 'warning' && l:count['warning']
-      let l:space = l:count['error'] ? ' ': ''
-      return printf('%s %d W ', l:space, l:count['warning'])
-    endif
-
-    return ''
-  catch
-    return ''
-  endtry
-endfunction
-
 function! GitStatusline() abort
-  let l:head = fugitive#head()
-  if !exists('b:gitgutter')
-    return (empty(l:head) ? '' : printf(' %s ', l:head))
+  let l:branch = system('git rev-parse --abbrev-ref HEAD 2>/dev/null')
+  if empty(l:branch)
+    return ''
   endif
-  let [l:added, l:modified, l:removed] = get(b:gitgutter, 'summary', [0, 0, 0])
-  let l:result = l:added == 0 ? '' : ' +'.l:added
-  let l:result .= l:modified == 0 ? '' : ' ~'.l:modified
-  let l:result .= l:removed == 0 ? '' : ' -'.l:removed
-  let l:result = join(filter([l:head, l:result], {-> !empty(v:val) }), '')
-  return (empty(l:result) ? '' : printf(' %s ', l:result))
+  return ' '.l:branch[:-2].' '
 endfunction
 
 function! HighlightModified() abort
@@ -328,12 +267,49 @@ function! StripTrailingWhitespaces()
   endif
 endfunction
 
+function! CommentLine(line_number) abort
+  let l:comment_string = getbufvar(bufnr(''), '&commentstring')
+  let l:markers = map(split(l:comment_string, '%s'), {-> escape(v:val, '*')})
+  let l:line = getline(a:line_number)
+  if l:line =~? '^'.l:markers[0]
+    if len(l:markers) ==? 1
+      return setline(a:line_number, substitute(l:line, '^\('.l:markers[0].'\)\(.*\)', '\2', 'g'))
+    endif
+      return setline(a:line_number, substitute(l:line, '^\('.l:markers[0].'\)\(.*\)\('.l:markers[1].'\)', '\2', 'g'))
+  endif
+
+  return setline(a:line_number, printf(l:comment_string, l:line))
+endfunction
+
+
+function! Comment(...) abort
+  let l:is_visual = a:0 > 0
+
+  if !l:is_visual
+    return CommentLine(line('.'))
+  endif
+
+  let [l:line_start, l:column_start] = getpos("'<")[1:2]
+  let [l:line_end, l:column_end] = getpos("'>")[1:2]
+  let l:lines = getline(l:line_start, l:line_end)
+
+  if len(l:lines) ==? 0
+    return 0
+  endif
+
+  let l:index = 0
+  for l:line in l:lines
+    call CommentLine(l:line_start + l:index)
+    let l:index += 1
+  endfor
+endfunction
+
 function! Search(...)
   let l:default = a:0 > 0 ? expand('<cword>') : ''
   let l:term = input('Search for: ', l:default)
   if l:term !=? ''
     let l:path = input('Path: ', '', 'file')
-    execute 'CtrlSF "'.l:term.'" '.l:path
+    execute 'grep "'.l:term.'" '.l:path
   endif
 endfunction
 
@@ -366,14 +342,18 @@ function! DirvishMappings() abort
   nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
 endfunction
 
+function! CheckBackSpace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
 " }}}
 " ================ Custom mappings ======================== {{{
 
 " Comment map
-nmap <Leader>c gcc
+nmap <silent><Leader>c :call Comment()<CR>
 " Line comment command
-xmap <Leader>c gc
-
+xmap <silent><Leader>c :<C-u>call Comment(1)<CR>
 " Map save to Ctrl + S
 map <c-s> :w<CR>
 imap <c-s> <C-o>:w<CR>
@@ -395,15 +375,19 @@ tnoremap <c-Space> <C-\><C-n><C-w>p
 nnoremap j gj
 nnoremap k gk
 
-" Do autocompletion
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-" If popup window is visible do autocompletion from back
+inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : CheckBackSpace() ? "\<TAB>" : "\<C-n>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-" Fix for jumping over placeholders for neosnippet
 
-imap <expr><CR> ncm2_ultisnips#completed_is_snippet() ?
-\ "\<Plug>(ncm2_ultisnips_expand_completed)"
-\ : "\<Plug>delimitMateCR"
+inoremap {      {}<Left>
+inoremap {<CR>  {<CR>}<Esc>O
+inoremap {{     {
+inoremap {}     {}
+inoremap        (  ()<Left>
+inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
+inoremap        [  []<Left>
+inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
+inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
+inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == '"' ? "\<Right>" : "\"\"\<Left>"
 
 " Map for Escape key
 inoremap jj <Esc>
@@ -432,7 +416,7 @@ vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 
 " Clear search highlight
-nnoremap <Leader><space> :AnzuClearSearchStatus<BAR>noh<CR>
+nnoremap <Leader><space> :noh<CR>
 
 " Handle ale error window
 nnoremap <Leader>e :lopen<CR>
@@ -452,32 +436,16 @@ nnoremap <Leader>f :call Search()<CR>
 nnoremap <Leader>F :call Search(1)<CR>
 
 " Toggle buffer list
-nnoremap <C-p> :Files<CR>
-nnoremap <Leader>b :Buffers<CR>
-nnoremap <Leader>t :BTags<CR>
-nnoremap <Leader>m :History<CR>
+nnoremap <Leader>b :ls<CR>
 
 " Indenting in visual mode
 xnoremap <s-tab> <gv
 xnoremap <tab> >gv
 
-" Resize window with shift + and shift - or use for diffget/diffput in diff mode
-nnoremap <expr> + &diff ? ':diffput<BAR>diffupdate<CR>' : '<c-w>5>'
-nnoremap <expr> _ &diff ? ':diffget<BAR>diffupdate<CR>' : '<c-w>5<'
-xnoremap <expr> + &diff ? ':diffput<BAR>diffupdate<CR>' : '+'
-xnoremap <expr> _ &diff ? ':diffget<BAR>diffupdate<CR>' : '_'
-nnoremap <expr> R &diff ? ':diffupdate<CR>' : 'R'
-
-" Better search status
-nmap n <Plug>(anzu-n)zz
-nmap N <Plug>(anzu-N)zz
-map * <Plug>(asterisk-z*)<Plug>(anzu-update-search-status)
-map # <Plug>(asterisk-z#)<Plug>(anzu-update-search-status)
-map g* <Plug>(asterisk-gz*)<Plug>(anzu-update-search-status)
-map g# <Plug>(asterisk-gz#)<Plug>(anzu-update-search-status)
-
-" Language client context menu
-nnoremap <Leader>r :call LanguageClient_contextMenu()<CR>
+nnoremap <C-p> :Files<CR>
+nnoremap <Leader>b :Buffers<CR>
+nnoremap <Leader>t :BTags<CR>
+nnoremap <Leader>m :History<CR>
 
 "Disable ex mode mapping
 map Q <Nop>
@@ -485,52 +453,18 @@ map Q <Nop>
 " Jump to definition in vertical split
 nnoremap <Leader>] <C-W>v<C-]>
 
-" Reformat and fix linting errors
-nnoremap <Leader>R :ALEFix<CR>
-
 " Close all other buffers except current one
 nnoremap <Leader>db :silent w <BAR> :silent %bd <BAR> e#<CR>
 
 nnoremap gx :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
 
-nnoremap <Leader>/ :FlyGrep<CR>
-
 " }}}
 " ================ Plugins setups ======================== {{{
 
-let g:ctrlsf_auto_close = 0                                                     "Do not close search when file is opened
-let g:ctrlsf_mapping = {'vsplit': 's'}                                          "Mapping for opening search result in vertical split
-
 let g:dirvish_mode = ':sort ,^.*[\/],'                                          "List directories first in dirvish
-
-let g:ncm2#complete_length = [[1, 2], [7, 1]]
-let g:ncm2#matcher = 'substrfuzzy'
-let g:ncm2_ultisnips#source_override = { 'priority': 10 }
-
-let g:delimitMate_expand_cr = 1                                                 "Auto indent on enter
-
-let g:ale_linters = {'javascript': ['eslint']}                                  "Lint js with eslint
-let g:ale_fixers = {'javascript': ['prettier', 'eslint']}                       "Fix eslint errors
-let g:ale_javascript_prettier_options = '--print-width 100'                     "Set max width to 100 chars for prettier
-let g:ale_sign_error = '✖'                                                      "Lint error sign
-let g:ale_sign_warning = '⚠'                                                    "Lint warning sign
 
 let g:jsx_ext_required = 1                                                      "Force jsx extension for jsx filetype
 let g:javascript_plugin_jsdoc = 1                                               "Enable syntax highlighting for js doc blocks
-
-let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki'}]                            "Use dropbox folder for easier syncing of wiki
-
-let g:matchup_matchparen_status_offscreen = 0                                   "Do not show offscreen closing match in statusline
-let g:matchup_matchparen_nomode = "ivV\<c-v>"                                   "Enable matchup only in normal mode
-
-let g:LanguageClient_serverCommands = {
-\ 'javascript': ['javascript-typescript-stdio'],
-\ 'javascript.jsx': ['javascript-typescript-stdio'],
-\ 'typescript': ['javascript-typescript-stdio'],
-\ }
-
-let g:UltiSnipsExpandTrigger = '<Plug>(ultisnips_expand)'
-let g:UltiSnipsJumpForwardTrigger = '<TAB>'
 
 " }}}
 " vim:foldenable:foldmethod=marker
