@@ -215,7 +215,7 @@ set statusline+=\ \│\ %l/%L                                                   
 set statusline+=\ %*%#Error#%{AleStatusline('error')}%*                         "Errors count
 set statusline+=%#DiffText#%{AleStatusline('warning')}%*                        "Warning count
 
-hi User1 guifg=#282828
+hi User1 guifg=#504945 gui=bold
 hi User2 guibg=#665c54 guifg=#ebdbb2
 
 function! StatuslineFn(name) abort
