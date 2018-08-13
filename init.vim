@@ -522,6 +522,7 @@ let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki'}]                            
 
 let g:matchup_matchparen_status_offscreen = 0                                   "Do not show offscreen closing match in statusline
 let g:matchup_matchparen_nomode = "ivV\<c-v>"                                   "Enable matchup only in normal mode
+let g:matchup_matchparen_deferred = 1                                           "Defer matchup highlights to allow better cursor movement performance
 
 let g:LanguageClient_serverCommands = {
 \ 'javascript': ['javascript-typescript-stdio'],
