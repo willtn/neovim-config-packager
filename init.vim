@@ -199,7 +199,7 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-set statusline+=%1*\ %{StatuslineMode()}                                        "Mode
+set statusline=%1*\ %{StatuslineMode()}                                         "Mode
 set statusline+=\ %*%2*%{StatuslineFn('GitStatusline')}%*                       "Git branch and status
 set statusline+=\ %f                                                            "File path
 set statusline+=\ %m                                                            "Modified indicator
