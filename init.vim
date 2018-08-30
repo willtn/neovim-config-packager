@@ -6,7 +6,6 @@ if exists('*minpac#init')
   call minpac#add('k-takata/minpac', {'type': 'opt'})
 
   " Auto loaded plugins
-  call minpac#add('Shougo/deoplete.nvim')
   call minpac#add('Shougo/neosnippet')
   call minpac#add('w0rp/ale', { 'do': '!npm install -g prettier' })
   call minpac#add('Raimondi/delimitMate')
@@ -24,7 +23,6 @@ if exists('*minpac#init')
   call minpac#add('phpactor/phpactor', { 'do': '!composer install' })
   call minpac#add('kristijanhusak/vim-js-file-import', { 'do': '!npm install' })
   call minpac#add('kristijanhusak/vim-dirvish-git')
-  call minpac#add('kristijanhusak/deoplete-phpactor')
   call minpac#add('vimwiki/vimwiki')
   call minpac#add('editorconfig/editorconfig-vim')
   call minpac#add('morhetz/gruvbox')
@@ -91,7 +89,9 @@ set tagcase=smart                                                               
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 set shortmess+=c                                                                "Disable completion menu messages in command line
+set completeopt+=menuone,noinsert,noselect
 
+filetype plugin indent on
 syntax on
 silent! colorscheme gruvbox
 hi! link jsFuncCall GruvboxBlue
@@ -148,6 +148,7 @@ augroup php
   autocmd FileType php nmap <buffer><silent><Leader>ir :call phpactor#ContextMenu()<CR>
   autocmd FileType php vmap <buffer><silent><Leader>ie :<C-U>call phpactor#ExtractMethod()<CR>
   autocmd FileType php nmap <buffer><silent><C-]> :call phpactor#GotoDefinition()<CR>
+  autocmd FileType php setlocal omnifunc=phpactor#Complete
 augroup END
 
 augroup javascript
@@ -387,10 +388,62 @@ tnoremap <c-Space> <C-\><C-n><C-w>p
 nnoremap j gj
 nnoremap k gk
 
+let s:active_completion = 0
+let s:list = ["\<C-x>\<C-o>", "\<C-x>\<C-n>", "\<C-x>\<C-p>",
+      \ "\<C-x>\<C-i>", "\<C-x>\<C-]>", "\<C-x>\<C-f>", "\<c-n>"]
+
+function! Autocomplete(...) abort
+  let l:not_ready = (col('.') - 2) <=? 0 || getline('.')[col('.') - 2] =~? '\s'
+  if pumvisible() && !a:0 || l:not_ready
+    return ''
+  endif
+
+  if s:active_completion ==? 0 && empty(&omnifunc)
+    let s:active_completion = 1
+  endif
+
+  echo printf('ACTIVE - %s', s:list[s:active_completion])
+  return s:list[s:active_completion]
+endfunction
+
+function! NextAutocomplete() abort
+  if s:active_completion ==? (len(s:list) - 1)
+    let s:active_completion = 0
+  else
+    let s:active_completion += 1
+  endif
+  return Autocomplete(v:true)
+endfunction
+
+function! AutocompleteTimerStart() abort
+  if exists('s:completion_timer')
+    call AutocompleteTimerStop()
+  endif
+  let s:completion_timer = timer_start(300, {-> feedkeys(Autocomplete()) })
+endfunction
+
+function! AutocompleteTimerStop() abort
+  if exists('s:completion_timer')
+    call timer_stop(s:completion_timer)
+    unlet s:completion_timer
+  endif
+endfunction
+
+function! CheckBackSpace()
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~? '\s'
+endfunction
+
+
+autocmd InsertLeave * let s:active_completion = 0
+autocmd InsertLeave * call AutocompleteTimerStop()
+autocmd TextChangedI * call AutocompleteTimerStart()
+inoremap <expr><C-j> NextAutocomplete()
+
 " Expand snippets on tab if snippets exists, otherwise do autocompletion
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
 \ "\<Plug>(neosnippet_expand_or_jump)"
-\ : pumvisible() ? "\<C-n>" : "\<TAB>"
+\ : CheckBackSpace() ? "\<TAB>" : "\<C-n>"
 " If popup window is visible do autocompletion from back
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Fix for jumping over placeholders for neosnippet
@@ -496,10 +549,6 @@ let g:ctrlsf_auto_close = 0                                                     
 let g:ctrlsf_mapping = {'vsplit': 's'}                                          "Mapping for opening search result in vertical split
 
 let g:dirvish_mode = ':sort ,^.*[\/],'                                          "List directories first in dirvish
-
-let g:deoplete#enable_at_startup = 1                                            "Enable deoplete on startup
-let g:deoplete#camel_case = 1                                                   "Autocomplete files relative to current buffer path
-let g:deoplete#file#enable_buffer_path = 1                                      "Show only 30 entries in list and allow smart case autocomplete
 
 let g:neosnippet#disable_runtime_snippets = {'_' : 1}                           "Snippets setup
 let g:neosnippet#snippets_directory = ['~/.config/nvim/snippets']               "Snippets directory
