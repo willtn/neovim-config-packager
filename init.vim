@@ -389,12 +389,23 @@ nnoremap j gj
 nnoremap k gk
 
 let s:active_completion = 0
-let s:list = ["\<C-x>\<C-o>", "\<C-x>\<C-n>", "\<C-x>\<C-p>",
-      \ "\<C-x>\<C-i>", "\<C-x>\<C-]>", "\<C-x>\<C-f>", "\<c-n>"]
+let s:list = [
+      \ { 'name': 'omni', 'key': "\<C-x>\<C-o>" },
+      \ { 'name': 'keyn', 'key': "\<C-x>\<C-n>" },
+      \ { 'name': 'keyp', 'key': "\<C-x>\<C-p>" },
+      \ { 'name': 'keyinc', 'key': "\<C-x>\<C-i>" },
+      \ { 'name': 'tags', 'key': "\<C-x>\<C-]>" },
+      \ { 'name': 'file', 'key': "\<C-x>\<C-f>" },
+      \ { 'name': 'c-n', 'key': "\<C-n>" },
+      \ ]
+
+function! AutocompleteNotReady() abort
+  let l:col = col('.') - 1
+  return l:col < 2 || getline('.')[(l:col - 2):(l:col)] !~? '[[:alnum:]]*'
+endfunction
 
 function! Autocomplete(...) abort
-  let l:not_ready = (col('.') - 2) <=? 0 || getline('.')[col('.') - 2] =~? '\s'
-  if pumvisible() && !a:0 || l:not_ready
+  if (pumvisible() && !a:0) || AutocompleteNotReady()
     return ''
   endif
 
@@ -402,8 +413,8 @@ function! Autocomplete(...) abort
     let s:active_completion = 1
   endif
 
-  echo printf('ACTIVE - %s', s:list[s:active_completion])
-  return s:list[s:active_completion]
+  echo printf('ACTIVE - %s', s:list[s:active_completion].name)
+  return s:list[s:active_completion].key
 endfunction
 
 function! NextAutocomplete() abort
@@ -416,34 +427,25 @@ function! NextAutocomplete() abort
 endfunction
 
 function! AutocompleteTimerStart() abort
-  if exists('s:completion_timer')
-    call AutocompleteTimerStop()
-  endif
+  call AutocompleteTimerStop()
   let s:completion_timer = timer_start(300, {-> feedkeys(Autocomplete()) })
 endfunction
 
-function! AutocompleteTimerStop() abort
-  if exists('s:completion_timer')
-    call timer_stop(s:completion_timer)
-    unlet s:completion_timer
+function! AutocompleteTimerStop(...) abort
+  if a:0 > 0
+    let s:active_completion = 0
   endif
+  return timer_stop(get(s:, 'completion_timer', 1))
 endfunction
 
-function! CheckBackSpace()
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~? '\s'
-endfunction
-
-
-autocmd InsertLeave * let s:active_completion = 0
-autocmd InsertLeave * call AutocompleteTimerStop()
+autocmd InsertLeave * call AutocompleteTimerStop(v:true)
 autocmd TextChangedI * call AutocompleteTimerStart()
 inoremap <expr><C-j> NextAutocomplete()
 
 " Expand snippets on tab if snippets exists, otherwise do autocompletion
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
 \ "\<Plug>(neosnippet_expand_or_jump)"
-\ : CheckBackSpace() ? "\<TAB>" : "\<C-n>"
+\ : pumvisible() ? "\<C-n>" : "\<TAB>"
 " If popup window is visible do autocompletion from back
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Fix for jumping over placeholders for neosnippet
