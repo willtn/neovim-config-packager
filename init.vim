@@ -6,7 +6,6 @@ if exists('*minpac#init')
   call minpac#add('k-takata/minpac', {'type': 'opt'})
 
   " Auto loaded plugins
-  call minpac#add('Shougo/deoplete.nvim')
   call minpac#add('Shougo/neosnippet')
   call minpac#add('w0rp/ale', { 'do': '!npm install -g prettier' })
   call minpac#add('Raimondi/delimitMate')
@@ -24,7 +23,6 @@ if exists('*minpac#init')
   call minpac#add('phpactor/phpactor', { 'do': '!composer install' })
   call minpac#add('kristijanhusak/vim-js-file-import', { 'do': '!npm install' })
   call minpac#add('kristijanhusak/vim-dirvish-git')
-  call minpac#add('kristijanhusak/deoplete-phpactor')
   call minpac#add('vimwiki/vimwiki')
   call minpac#add('editorconfig/editorconfig-vim')
   call minpac#add('morhetz/gruvbox')
@@ -35,6 +33,7 @@ if exists('*minpac#init')
   call minpac#add('autozimu/LanguageClient-neovim', { 'do': '!bash install.sh' })
   call minpac#add('wellle/targets.vim')
   call minpac#add('wsdjeg/FlyGrep.vim')
+  call minpac#add('kristijanhusak/vim-mucomplete', { 'branch': 'feature/timers'})
 endif
 
 command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update() | call minpac#status()
@@ -91,7 +90,9 @@ set tagcase=smart                                                               
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 set shortmess+=c                                                                "Disable completion menu messages in command line
+set completeopt+=menuone,noinsert,noselect                                      "Show menu when one entry visible, do not auto select or insert
 
+filetype plugin indent on
 syntax on
 silent! colorscheme gruvbox
 hi! link jsFuncCall GruvboxBlue
@@ -143,7 +144,7 @@ augroup END
 
 augroup php
   autocmd!
-  autocmd FileType php setlocal shiftwidth=4 softtabstop=4 tabstop=4
+  autocmd FileType php setlocal shiftwidth=4 softtabstop=4 tabstop=4 omnifunc=phpactor#Complete
   autocmd FileType php nmap <buffer><silent><Leader>if :call phpactor#UseAdd()<CR>
   autocmd FileType php nmap <buffer><silent><Leader>ir :call phpactor#ContextMenu()<CR>
   autocmd FileType php vmap <buffer><silent><Leader>ie :<C-U>call phpactor#ExtractMethod()<CR>
@@ -390,9 +391,7 @@ nnoremap k gk
 " Expand snippets on tab if snippets exists, otherwise do autocompletion
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
 \ "\<Plug>(neosnippet_expand_or_jump)"
-\ : pumvisible() ? "\<C-n>" : "\<TAB>"
-" If popup window is visible do autocompletion from back
-imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+\ : "\<plug>(MUcompleteFwd)"
 " Fix for jumping over placeholders for neosnippet
 smap <expr><TAB> neosnippet#jumpable() ?
 \ "\<Plug>(neosnippet_jump)"
@@ -497,9 +496,9 @@ let g:ctrlsf_mapping = {'vsplit': 's'}                                          
 
 let g:dirvish_mode = ':sort ,^.*[\/],'                                          "List directories first in dirvish
 
-let g:deoplete#enable_at_startup = 1                                            "Enable deoplete on startup
-let g:deoplete#camel_case = 1                                                   "Autocomplete files relative to current buffer path
-let g:deoplete#file#enable_buffer_path = 1                                      "Show only 30 entries in list and allow smart case autocomplete
+let g:mucomplete#enable_auto_at_startup = 1
+let g:mucomplete#chains = {'default': ['omni', 'incl', 'keyn', 'c-n', 'tags', 'path']}
+let g:mucomplete#buffer_relative_paths = 1
 
 let g:neosnippet#disable_runtime_snippets = {'_' : 1}                           "Snippets setup
 let g:neosnippet#snippets_directory = ['~/.config/nvim/snippets']               "Snippets directory
