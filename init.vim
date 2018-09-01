@@ -389,23 +389,22 @@ nnoremap j gj
 nnoremap k gk
 
 let s:active_completion = 0
+let s:valid_char_pre = 0
 let s:list = [
       \ { 'name': 'omni', 'key': "\<C-x>\<C-o>" },
       \ { 'name': 'keyn', 'key': "\<C-x>\<C-n>" },
-      \ { 'name': 'keyp', 'key': "\<C-x>\<C-p>" },
       \ { 'name': 'keyinc', 'key': "\<C-x>\<C-i>" },
       \ { 'name': 'tags', 'key': "\<C-x>\<C-]>" },
       \ { 'name': 'file', 'key': "\<C-x>\<C-f>" },
       \ { 'name': 'c-n', 'key': "\<C-n>" },
       \ ]
 
-function! AutocompleteNotReady() abort
-  let l:col = col('.') - 1
-  return l:col < 2 || getline('.')[(l:col - 2):(l:col)] !~? '[[:alnum:]]*'
+function! InsertCharPre() abort
+  let s:valid_char_pre = v:char =~? '[[:alnum:]]'
 endfunction
 
 function! Autocomplete(...) abort
-  if (pumvisible() && !a:0) || AutocompleteNotReady()
+  if (pumvisible() && !a:0) || !s:valid_char_pre
     return ''
   endif
 
@@ -434,10 +433,12 @@ endfunction
 function! AutocompleteTimerStop(...) abort
   if a:0 > 0
     let s:active_completion = 0
+    let s:valid_char_pre = 0
   endif
   return timer_stop(get(s:, 'completion_timer', 1))
 endfunction
 
+autocmd InsertCharPre * call InsertCharPre()
 autocmd InsertLeave * call AutocompleteTimerStop(v:true)
 autocmd TextChangedI * call AutocompleteTimerStart()
 inoremap <expr><C-j> NextAutocomplete()
@@ -480,7 +481,7 @@ vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 
 " Clear search highlight
-nnoremap <Leader><space> :AnzuClearSearchStatus<BAR>noh<CR>
+nnoremap <silent><Leader><space> :AnzuClearSearchStatus<BAR>noh<CR>
 
 " Handle ale error window
 nnoremap <Leader>e :lopen<CR>
@@ -560,6 +561,7 @@ let g:delimitMate_expand_cr = 1                                                 
 let g:ale_linters = {'javascript': ['eslint']}                                  "Lint js with eslint
 let g:ale_fixers = {'javascript': ['prettier', 'eslint']}                       "Fix eslint errors
 let g:ale_javascript_prettier_options = '--print-width 100'                     "Set max width to 100 chars for prettier
+let g:ale_lint_delay = 400                                                      "Increase linting delay
 let g:ale_sign_error = '✖'                                                      "Lint error sign
 let g:ale_sign_warning = '⚠'                                                    "Lint warning sign
 
