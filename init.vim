@@ -165,6 +165,13 @@ augroup numbertoggle
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
 augroup END
 
+augroup customAutocomplete
+  autocmd!
+  autocmd InsertCharPre * let s:valid_char_pre = v:char =~? '[[:alnum:]]'
+  autocmd TextChangedI * call AutocompleteTimerStart()
+  autocmd InsertLeave * call AutocompleteTimerStop(v:true)
+augroup END
+
 " }}}
 " ================ Completion ======================= {{{
 
@@ -358,36 +365,8 @@ function! DirvishMappings() abort
   nnoremap <silent><buffer><expr>j line('.') == line('$') ? 'gg' : 'j'
   nnoremap <silent><buffer><expr>k line('.') == 1 ? 'G' : 'k'
 endfunction
-
 " }}}
-" ================ Custom mappings ======================== {{{
-
-" Comment map
-nmap <Leader>c gcc
-" Line comment command
-xmap <Leader>c gc
-
-" Map save to Ctrl + S
-map <c-s> :w<CR>
-imap <c-s> <C-o>:w<CR>
-nnoremap <Leader>s :w<CR>
-
-" Open vertical split
-nnoremap <Leader>v <C-w>v
-
-" Move between slits
-nnoremap <c-h> <C-w>h
-nnoremap <c-j> <C-w>j
-nnoremap <c-k> <C-w>k
-nnoremap <c-l> <C-w>l
-tnoremap <c-h> <C-\><C-n><C-w>h
-tnoremap <c-l> <C-\><C-n><C-w>l
-tnoremap <c-Space> <C-\><C-n><C-w>p
-
-" Down is really the next line
-nnoremap j gj
-nnoremap k gk
-
+" ================ Autocomplete ======================== {{{
 let s:active_completion = 0
 let s:valid_char_pre = 0
 let s:list = [
@@ -398,10 +377,6 @@ let s:list = [
       \ { 'name': 'file', 'key': "\<C-x>\<C-f>" },
       \ { 'name': 'c-n', 'key': "\<C-n>" },
       \ ]
-
-function! InsertCharPre() abort
-  let s:valid_char_pre = v:char =~? '[[:alnum:]]'
-endfunction
 
 function! Autocomplete(...) abort
   if (pumvisible() && !a:0) || !s:valid_char_pre
@@ -437,10 +412,35 @@ function! AutocompleteTimerStop(...) abort
   endif
   return timer_stop(get(s:, 'completion_timer', 1))
 endfunction
+" }}}
+" ================ Custom mappings ======================== {{{
 
-autocmd InsertCharPre * call InsertCharPre()
-autocmd InsertLeave * call AutocompleteTimerStop(v:true)
-autocmd TextChangedI * call AutocompleteTimerStart()
+" Comment map
+nmap <Leader>c gcc
+" Line comment command
+xmap <Leader>c gc
+
+" Map save to Ctrl + S
+map <c-s> :w<CR>
+imap <c-s> <C-o>:w<CR>
+nnoremap <Leader>s :w<CR>
+
+" Open vertical split
+nnoremap <Leader>v <C-w>v
+
+" Move between slits
+nnoremap <c-h> <C-w>h
+nnoremap <c-j> <C-w>j
+nnoremap <c-k> <C-w>k
+nnoremap <c-l> <C-w>l
+tnoremap <c-h> <C-\><C-n><C-w>h
+tnoremap <c-l> <C-\><C-n><C-w>l
+tnoremap <c-Space> <C-\><C-n><C-w>p
+
+" Down is really the next line
+nnoremap j gj
+nnoremap k gk
+
 inoremap <expr><C-j> NextAutocomplete()
 
 " Expand snippets on tab if snippets exists, otherwise do autocompletion
