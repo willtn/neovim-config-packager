@@ -19,6 +19,8 @@ alias weather="curl http://wttr.in/Novi sad"
 alias gs="git status"
 alias code="cd ~/code"
 alias lg="lazygit"
+alias dco="docker-compose"
+alias dcup="docker-compose up"
 
 if status is-interactive
 and not set -q TMUX
