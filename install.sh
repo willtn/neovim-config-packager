@@ -67,6 +67,5 @@ if echo "$answer" | grep -iq "^y" ;then
   && install_ripgrep \
   && install_ctags \
   && install_diff_so_fancy \
-  && install_oh_my_fish \
-  && echo "Finished installation."
+  && install_oh_my_fish
 fi
