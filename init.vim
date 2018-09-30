@@ -139,7 +139,8 @@ augroup vimrc
   autocmd VimEnter * call SetStatusline()
   autocmd FileType defx call DefxSettings()
   autocmd BufEnter * if &filetype !=? 'defx' | set nowinfixwidth | endif
-  autocmd VimEnter * if isdirectory(expand(printf('#%s:p', expand('<abuf>')))) | call DefxOpen() | endif
+  autocmd VimEnter * if isdirectory(expand(printf('#%s:p', expand('<abuf>'))))
+        \ | call DefxOpen({ 'dir': expand(printf('#%s:p', expand('<abuf>'))) }) | endif
 augroup END
 
 augroup php
@@ -352,7 +353,7 @@ function! DefxOpen(...) abort
   endif
 
   if !has_key(l:opts, 'find_current_file')
-    call execute(printf('Defx -toggle %s', l:args))
+    call execute(printf('Defx -toggle %s %s', l:args, get(l:opts, 'dir', getcwd())))
     if l:defx_winnr
       call execute('wincmd p')
     endif
