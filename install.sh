@@ -1,16 +1,15 @@
-#!/usr/bin/env bash
-install_oh_my_zsh() {
-  echo "Setting up zsh..." \
-  && rm -rf ~/.zshrc ~/.oh-my-zsh \
-  && ln -s $(pwd)/zshrc ~/.zshrc \
-  && git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
-  && chsh -s /bin/zsh \
-  && git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
-  && mkdir -p ~/.oh-my-zsh/custom/themes \
-  && ln -s $(pwd)/cloud_kris.zsh-theme ~/.oh-my-zsh/custom/themes \
-  && rm -rf ~/z.sh \
-  && curl -fLo ~/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh \
-  && tic xterm-256color-italic.terminfo
+#!/bin/bash
+
+install_oh_my_fish() {
+  echo "Setting up fish..." \
+  && chsh -s /usr/bin/fish \
+  && rm -rf ~/.config/omf ~/.local/share/omf ~/z.fish \
+  && mkdir -p ~/.config/omf \
+  && ln -s $(pwd)/init.fish ~/.config/omf/init.fish \
+  && ln -s $(pwd)/fish_bundle ~/.config/omf/bundle \
+  && curl -fLo ~/z.fish https://raw.githubusercontent.com/sjl/z-fish/master/z.fish \
+  && tic xterm-256color-italic.terminfo \
+  && curl -L https://get.oh-my.fish | fish
 }
 
 setup_tmux() {
@@ -52,7 +51,8 @@ install_diff_so_fancy() {
   local dif_so_fancy_installed=$(which diff-so-fancy)
   if [[ -z $dif_so_fancy_installed ]]; then
     echo "Installing diff-so-fancy..." \
-    && npm install -g diff-so-fancy \
+    && rm -rf /usr/local/bin/diff-so-fancy \
+    && curl -fLo /usr/local/bin/diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy \
     && git config --global core.pager "diff-so-fancy | less --tabs=4 -R"
   fi
 }
@@ -62,11 +62,11 @@ read answer
 if echo "$answer" | grep -iq "^y" ;then
   echo "Installing dependencies..." \
   && sudo apt-get install urlview xdotool dh-autoreconf dconf-cli xsel \
-  && install_oh_my_zsh \
   && setup_tmux \
   && setup_neovim \
   && install_ripgrep \
   && install_ctags \
   && install_diff_so_fancy \
+  && install_oh_my_fish \
   && echo "Finished installation."
 fi
