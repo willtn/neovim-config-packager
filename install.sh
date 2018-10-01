@@ -3,11 +3,12 @@
 install_oh_my_fish() {
   echo "Setting up fish..." \
   && chsh -s /usr/bin/fish \
-  && rm -rf ~/.config/omf ~/.local/share/omf ~/z.fish \
+  && rm -rf ~/.config/omf ~/.local/share/omf ~/z.fish ~/.config/fish/functions/nvm.fish \
   && mkdir -p ~/.config/omf \
   && ln -s $(pwd)/init.fish ~/.config/omf/init.fish \
   && ln -s $(pwd)/fish_bundle ~/.config/omf/bundle \
   && curl -fLo ~/z.fish https://raw.githubusercontent.com/sjl/z-fish/master/z.fish \
+  && curl -sSL https://raw.githubusercontent.com/brigand/fast-nvm-fish/master/nvm.fish > ~/.config/fish/functions/nvm.fish \
   && tic xterm-256color-italic.terminfo \
   && curl -L https://get.oh-my.fish | fish
 }
