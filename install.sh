@@ -27,6 +27,7 @@ setup_neovim() {
   && git clone https://github.com/kristijanhusak/vim-packager.git ~/.config/nvim/pack/packager/opt/vim-packager \
   && ln -s $(pwd)/snippets ~/.config/nvim/snippets \
   && ln -s $(pwd)/init.vim ~/.config/nvim/init.vim \
+  && mkdir ~/.config/nvim/backups \
   && nvim -c 'call PackagerInit() | call packager#install({ "on_finish": "UpdateRemotePlugins | qa" })'
 }
 

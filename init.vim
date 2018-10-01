@@ -107,7 +107,6 @@ set nowritebackup
 " ================ Persistent Undo ================== {{{
 
 " Keep undo history across sessions, by storing in file.
-silent !mkdir ~/.config/nvim/backups > /dev/null 2>&1
 set undodir=~/.config/nvim/backups
 set undofile
 
@@ -138,7 +137,6 @@ augroup vimrc
   autocmd VimEnter * call deoplete#custom#option({ 'async_timeout': 10, 'camel_case': 1 })
   autocmd VimEnter * call SetStatusline()
   autocmd FileType defx call DefxSettings()
-  autocmd BufEnter * if &filetype !=? 'defx' | set nowinfixwidth | endif
   autocmd VimEnter * if isdirectory(expand(printf('#%s:p', expand('<abuf>'))))
         \ | call DefxOpen({ 'dir': expand(printf('#%s:p', expand('<abuf>'))) }) | endif
 augroup END
