@@ -30,3 +30,7 @@ end
 if test -e ~/z.fish
   . ~/z.fish
 end
+
+if test -e ~/.fish_secret
+  . ~/.fish_secret
+end
