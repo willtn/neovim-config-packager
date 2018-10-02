@@ -383,7 +383,7 @@ function! DefxSettings() abort
   nnoremap <silent><buffer><expr> o defx#do_action('open', 'wincmd p \| drop')
   nnoremap <silent><buffer><expr> <CR> defx#do_action('open', 'wincmd p \| drop')
   nnoremap <silent><buffer><expr> <2-LeftMouse> defx#do_action('open', 'wincmd p \| drop')
-  nnoremap <silent><buffer><expr> s defx#do_action('open', 'vsplit')
+  nnoremap <silent><buffer><expr> s defx#do_action('open', 'botright vsplit')
   nnoremap <silent><buffer><expr> R defx#do_action('redraw')
   nnoremap <silent><buffer><expr> u defx#do_action('cd', ['..'])
   nnoremap <silent><buffer><expr> H defx#do_action('toggle_ignored_files')
