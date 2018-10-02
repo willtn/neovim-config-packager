@@ -88,6 +88,7 @@ set tagcase=smart                                                               
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 set shortmess+=c                                                                "Disable completion menu messages in command line
+set completeopt-=preview                                                        "Disable preview window for autocompletion
 
 filetype plugin indent on
 syntax on
@@ -559,6 +560,7 @@ let g:LanguageClient_serverCommands = {
 \ 'javascript.jsx': ['javascript-typescript-stdio'],
 \ 'typescript': ['javascript-typescript-stdio'],
 \ 'go': ['go-langserver', '-gocodecompletion', '-func-snippet-enabled=false'],
+\ 'python': ['pyls'],
 \ }
 " }}}
 " vim:foldenable:foldmethod=marker
