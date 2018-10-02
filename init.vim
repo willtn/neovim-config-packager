@@ -344,7 +344,7 @@ endfunction
 function! DefxOpen(...) abort
   let l:opts = get(a:, 1, {})
   let l:defx_winnr = get(filter(range(1, winnr('$')), 'getwinvar(v:val, "&ft") ==? "defx"'), 0, 0)
-  let l:args = ''
+  let l:args = '-fnamewidth=50'
 
   if has_key(l:opts, 'split')
     let l:args = '-split=vertical -winwidth=40 -direction=topleft -fnamewidth=50'
@@ -362,7 +362,7 @@ function! DefxOpen(...) abort
   let l:head_path = expand('%:p:h')
 
   if l:defx_winnr > 0
-    let l:args = ''
+    let l:args = '-fnamewidth=50'
     call execute(printf('%dwincmd w', l:defx_winnr))
   endif
 
