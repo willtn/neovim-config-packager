@@ -391,6 +391,7 @@ function! DefxSettings() abort
   nnoremap <silent><buffer><expr> <Space> defx#do_action('toggle_select') . 'j'
   nnoremap <silent><buffer><expr> j line('.') == line('$') ? 'gg' : 'j'
   nnoremap <silent><buffer><expr> k line('.') == 1 ? 'G' : 'k'
+  nnoremap <silent><buffer><expr> yy defx#do_action('yank_path')
   nnoremap <silent><buffer><expr> q defx#do_action('quit')
 endfunction
 
