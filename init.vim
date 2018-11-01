@@ -22,6 +22,7 @@ function! PackagerInit() abort
   call packager#add('phpactor/phpactor', { 'do': 'composer install' })
   call packager#add('kristijanhusak/vim-js-file-import', { 'do': 'npm install' })
   call packager#add('kristijanhusak/deoplete-phpactor')
+  call packager#add('kristijanhusak/defx-git')
   call packager#add('vimwiki/vimwiki')
   call packager#add('editorconfig/editorconfig-vim')
   call packager#add('morhetz/gruvbox')
@@ -29,8 +30,10 @@ function! PackagerInit() abort
   call packager#add('haya14busa/vim-asterisk')
   call packager#add('osyo-manga/vim-anzu')
   call packager#add('autozimu/LanguageClient-neovim', { 'do': 'bash install.sh' })
-  call packager#add('wellle/targets.vim')
   call packager#add('wsdjeg/FlyGrep.vim')
+  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries' })
+  call packager#add('junegunn/vim-peekaboo')
+  call packager#add('mgedmin/python-imports.vim')
 endfunction
 
 command! PackagerInstall call PackagerInit() | call packager#install()
@@ -88,7 +91,9 @@ set tagcase=smart                                                               
 set updatetime=500                                                              "Cursor hold timeout
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 set shortmess+=c                                                                "Disable completion menu messages in command line
+set undofile                                                                    "Keep undo history across sessions, by storing in file
 set completeopt-=preview                                                        "Disable preview window for autocompletion
+set shell=sh
 
 filetype plugin indent on
 syntax on
@@ -96,6 +101,7 @@ silent! colorscheme gruvbox
 hi! link jsFuncCall GruvboxBlue
 " Remove highlighting of Operator because it is reversed with cursorline enabled
 hi! Operator guifg=NONE guibg=NONE
+hi! SpellBad gui=underline
 
 " }}}
 " ================ Turn Off Swap Files ============== {{{
@@ -103,13 +109,6 @@ hi! Operator guifg=NONE guibg=NONE
 set noswapfile
 set nobackup
 set nowritebackup
-
-" }}}
-" ================ Persistent Undo ================== {{{
-
-" Keep undo history across sessions, by storing in file.
-set undodir=~/.config/nvim/backups
-set undofile
 
 " }}}
 " ================ Indentation ====================== {{{
@@ -135,11 +134,8 @@ augroup vimrc
   autocmd InsertLeave * set cul                                               "Add cursorline highlight in normal mode
   autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
   autocmd BufEnter,BufWritePost,TextChanged,TextChangedI * call HighlightModified()
-  autocmd VimEnter * call deoplete#custom#option({ 'async_timeout': 10, 'camel_case': 1 })
-  autocmd VimEnter * call SetStatusline()
+  autocmd VimEnter * call VimEnterSettings()
   autocmd FileType defx call DefxSettings()
-  autocmd VimEnter * if isdirectory(expand(printf('#%s:p', expand('<abuf>'))))
-        \ | call DefxOpen({ 'dir': expand(printf('#%s:p', expand('<abuf>'))) }) | endif
 augroup END
 
 augroup php
@@ -159,6 +155,12 @@ augroup javascript
   autocmd FileType javascript xmap <buffer><silent><Leader>] <C-W>vgv<Plug>(JsGotoDefinition)
 augroup END
 
+augroup python
+  autocmd!
+  autocmd FileType python nmap <buffer><silent><Leader>if :ImportName<CR>
+  autocmd FileType python setlocal shiftwidth=4 softtabstop=4 tabstop=4 textwidth=79
+augroup END
+
 augroup numbertoggle
   autocmd!
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu   | endif
@@ -174,6 +176,8 @@ set wildignore+=*.git*
 set wildignore+=*.meteor*
 set wildignore+=*vim/backups*
 set wildignore+=*sass-cache*
+set wildignore+=*mypy_cache*
+set wildignore+=*__pycache__*
 set wildignore+=*cache*
 set wildignore+=*logs*
 set wildignore+=*node_modules/**
@@ -305,6 +309,16 @@ cnoreabbrev E e
 " }}}
 " ================ Functions ======================== {{{
 
+function! VimEnterSettings() abort
+  let l:buffer_path = expand(printf('#%s:p', expand('<abuf>')))
+  if isdirectory(l:buffer_path)
+    call DefxOpen({ 'dir': l:buffer_path })
+  endif
+
+  call SetStatusline()
+  call deoplete#custom#option({ 'async_timeout': 10, 'camel_case': 1 })
+endfunction
+
 function! StripTrailingWhitespaces()
   if &modifiable
     let l:l = line('.')
@@ -320,7 +334,7 @@ function! Search(...)
   let l:term = input('Search for: ', l:default)
   if l:term !=? ''
     let l:path = input('Path: ', '', 'file')
-    execute 'CtrlSF "'.l:term.'" '.l:path
+    silent! execute 'CtrlSF "'.l:term.'" '.l:path
   endif
 endfunction
 
@@ -344,30 +358,25 @@ endfunction
 
 function! DefxOpen(...) abort
   let l:opts = get(a:, 1, {})
-  let l:defx_winnr = get(filter(range(1, winnr('$')), 'getwinvar(v:val, "&ft") ==? "defx"'), 0, 0)
-  let l:args = '-fnamewidth=50'
+  let l:args = '-winwidth=40 -direction=topleft -fnamewidth=50 -columns=git:mark:filename:type'
+  let l:is_opened = bufwinnr('defx') > 0
 
   if has_key(l:opts, 'split')
-    let l:args = '-split=vertical -winwidth=40 -direction=topleft -fnamewidth=50'
+    let l:args .= ' -split=vertical'
   endif
 
-  if !has_key(l:opts, 'find_current_file')
+  if has_key(l:opts, 'find_current_file')
+    if &filetype ==? 'defx'
+      return
+    endif
+    call execute(printf('Defx %s -search=%s %s', l:args, expand('%:p'), expand('%:p:h')))
+  else
     call execute(printf('Defx -toggle %s %s', l:args, get(l:opts, 'dir', getcwd())))
-    if l:defx_winnr
+    if l:is_opened
       call execute('wincmd p')
     endif
-    return execute("norm!\<C-w>=")
   endif
 
-  let l:full_path = expand('%:p')
-  let l:head_path = expand('%:p:h')
-
-  if l:defx_winnr > 0
-    let l:args = '-fnamewidth=50'
-    call execute(printf('%dwincmd w', l:defx_winnr))
-  endif
-
-  call execute(printf('Defx %s -search=%s %s', l:args, l:full_path, l:head_path))
   return execute("norm!\<C-w>=")
 endfunction
 
@@ -381,18 +390,20 @@ endfunction
 
 function! DefxSettings() abort
   nnoremap <silent><buffer>m :call DefxContextMenu()<CR>
-  nnoremap <silent><buffer><expr> o defx#do_action('open', 'wincmd p \| drop')
-  nnoremap <silent><buffer><expr> <CR> defx#do_action('open', 'wincmd p \| drop')
-  nnoremap <silent><buffer><expr> <2-LeftMouse> defx#do_action('open', 'wincmd p \| drop')
+  nnoremap <silent><buffer><expr> o defx#do_action('drop')
+  nnoremap <silent><buffer><expr> <CR> defx#do_action('drop')
+  nnoremap <silent><buffer><expr> <2-LeftMouse> defx#do_action('drop')
   nnoremap <silent><buffer><expr> s defx#do_action('open', 'botright vsplit')
   nnoremap <silent><buffer><expr> R defx#do_action('redraw')
   nnoremap <silent><buffer><expr> u defx#do_action('cd', ['..'])
+  nnoremap <silent><buffer><expr> cd defx#do_action('change_vim_cwd')
   nnoremap <silent><buffer><expr> H defx#do_action('toggle_ignored_files')
   nnoremap <silent><buffer><expr> <Space> defx#do_action('toggle_select') . 'j'
   nnoremap <silent><buffer><expr> j line('.') == line('$') ? 'gg' : 'j'
   nnoremap <silent><buffer><expr> k line('.') == 1 ? 'G' : 'k'
   nnoremap <silent><buffer><expr> yy defx#do_action('yank_path')
   nnoremap <silent><buffer><expr> q defx#do_action('quit')
+  nnoremap <silent><buffer><expr> gh defx#do_action('cd', [getcwd()])
 endfunction
 
 " }}}
@@ -418,7 +429,6 @@ nnoremap <c-k> <C-w>k
 nnoremap <c-l> <C-w>l
 tnoremap <c-h> <C-\><C-n><C-w>h
 tnoremap <c-l> <C-\><C-n><C-w>l
-tnoremap <c-Space> <C-\><C-n><C-w>p
 
 " Down is really the next line
 nnoremap j gj
@@ -471,15 +481,15 @@ nnoremap <Leader>E :copen<CR>
 nnoremap <silent><Leader>q :call CloseBuffer()<CR>
 nnoremap <silent><Leader>Q :call CloseBuffer(v:true)<CR>
 
-nnoremap <Leader>n :call DefxOpen({ 'split': v:true })<CR>
-nnoremap <Leader>hf :call DefxOpen({ 'split': v:true, 'find_current_file': v:true })<CR>
+nnoremap <silent><Leader>n :call DefxOpen({ 'split': v:true })<CR>
+nnoremap <silent><Leader>hf :call DefxOpen({ 'split': v:true, 'find_current_file': v:true })<CR>
 
 " Toggle between last 2 buffers
 nnoremap <leader><tab> <c-^>
 
 " Filesearch plugin map for searching in whole folder
-nnoremap <Leader>f :call Search()<CR>
-nnoremap <Leader>F :call Search(v:true)<CR>
+nnoremap <silent><Leader>f :call Search()<CR>
+nnoremap <silent><Leader>F :call Search(v:true)<CR>
 
 " Toggle buffer list
 nnoremap <C-p> :Files<CR>
@@ -556,6 +566,9 @@ let g:matchup_matchparen_status_offscreen = 0                                   
 let g:matchup_matchparen_nomode = "ivV\<c-v>"                                   "Enable matchup only in normal mode
 let g:matchup_matchparen_deferred = 1                                           "Defer matchup highlights to allow better cursor movement performance
 
+let g:go_fmt_command = 'goimports'                                              "Auto import go packages on save
+
+let g:LanguageClient_diagnosticsEnable = 0                                      "Disable linting from Language client
 let g:LanguageClient_serverCommands = {
 \ 'javascript': ['javascript-typescript-stdio'],
 \ 'javascript.jsx': ['javascript-typescript-stdio'],

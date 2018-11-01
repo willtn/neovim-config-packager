@@ -4,7 +4,8 @@ set -x EDITOR 'nvim'
 set -x LESS 'R'
 set -x MANPAGER "nvim -c 'set ft=man' -"
 set -x FZF_DEFAULT_COMMAND 'rg --files'
-set -gx PATH ~/go/bin $PATH
+set -gx PATH ~/go/bin /usr/local/go/bin $PATH
+set -x GOPATH ~/go
 nvm use 8.7.0
 alias n='nvim .'
 alias install='sudo apt-get install'
