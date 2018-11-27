@@ -3,6 +3,11 @@ function! PackagerInit() abort
   packadd vim-packager
   call packager#init()
   call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
+  call packager#add('kristijanhusak/vim-js-file-import', { 'do': 'npm install' })
+  call packager#add('kristijanhusak/deoplete-phpactor')
+  call packager#add('kristijanhusak/vim-project-lint')
+  call packager#add('kristijanhusak/defx-git')
+  call packager#add('kristijanhusak/defx-icons')
   call packager#add('Shougo/deoplete.nvim')
   call packager#add('Shougo/neosnippet')
   call packager#add('Shougo/defx.nvim')
@@ -14,18 +19,14 @@ function! PackagerInit() abort
   call packager#add('tpope/vim-fugitive')
   call packager#add('tpope/vim-endwise')
   call packager#add('tpope/vim-sleuth')
+  call packager#add('lambdalisue/vim-backslash')
   call packager#add('AndrewRadev/splitjoin.vim')
   call packager#add('airblade/vim-gitgutter')
   call packager#add('sheerun/vim-polyglot')
-  call packager#add('dyng/ctrlsf.vim')
   call packager#add('junegunn/fzf', { 'do': './install --all && ln -sf $(pwd) ~/.fzf'})
   call packager#add('junegunn/fzf.vim')
   call packager#add('ludovicchabant/vim-gutentags')
   call packager#add('phpactor/phpactor', { 'do': 'composer install' })
-  call packager#add('kristijanhusak/vim-js-file-import', { 'do': 'npm install' })
-  call packager#add('kristijanhusak/deoplete-phpactor')
-  call packager#add('kristijanhusak/defx-git')
-  call packager#add('kristijanhusak/vim-project-lint')
   call packager#add('vimwiki/vimwiki')
   call packager#add('editorconfig/editorconfig-vim')
   call packager#add('morhetz/gruvbox')
@@ -33,11 +34,11 @@ function! PackagerInit() abort
   call packager#add('haya14busa/vim-asterisk')
   call packager#add('osyo-manga/vim-anzu')
   call packager#add('autozimu/LanguageClient-neovim', { 'do': 'bash install.sh' })
-  call packager#add('wsdjeg/FlyGrep.vim')
   call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries' })
   call packager#add('junegunn/vim-peekaboo')
   call packager#add('mgedmin/python-imports.vim')
   call packager#add('janko-m/vim-test')
+  call packager#add('dyng/ctrlsf.vim')
 endfunction
 
 command! PackagerInstall call PackagerInit() | call packager#install()
@@ -101,7 +102,9 @@ silent! colorscheme gruvbox
 hi! link jsFuncCall GruvboxBlue
 " Remove highlighting of Operator because it is reversed with cursorline enabled
 hi! Operator guifg=NONE guibg=NONE
-hi! SpellBad gui=underline
+hi! link ALEVirtualTextError GruvboxRed
+hi! link ALEVirtualTextWarning GruvboxYellow
+hi! link ALEVirtualTextInfo GruvboxBlue
 
 " }}}
 " ================ Turn Off Swap Files ============== {{{
@@ -124,14 +127,15 @@ set foldmethod=syntax
 
 augroup vimrc
   autocmd!
-  autocmd QuickFixCmdPost [^l]* cwindow                                       "Open quickfix window after grepping
-  autocmd BufWritePre * call StripTrailingWhitespaces()                       "Auto-remove trailing spaces
-  autocmd InsertEnter * set nocul                                             "Remove cursorline highlight
-  autocmd InsertLeave * set cul                                               "Add cursorline highlight in normal mode
-  autocmd FocusGained,BufEnter * checktime                                    "Refresh file when vim gets focus
-  autocmd BufEnter,BufWritePost,TextChanged,TextChangedI * call HighlightModified()
-  autocmd VimEnter * call VimEnterSettings()
-  autocmd FileType defx call DefxSettings()
+  autocmd QuickFixCmdPost [^l]* cwindow                                         "Open quickfix window after grepping
+  autocmd BufWritePre * call StripTrailingWhitespaces()                         "Auto-remove trailing spaces
+  autocmd InsertEnter * set nocul                                               "Remove cursorline highlight
+  autocmd InsertLeave * set cul                                                 "Add cursorline highlight in normal mode
+  autocmd FocusGained,BufEnter * checktime                                      "Refresh file when vim gets focus
+  autocmd WinEnter,BufWinEnter * setlocal statusline=%!Statusline(1)            "Set focused statusline
+  autocmd WinLeave,BufWinLeave * setlocal statusline=%!Statusline(0)            "Set not active statusline
+  autocmd VimEnter * call VimEnterSettings()                                    "Vim startup settings
+  autocmd FileType defx call DefxSettings()                                     "Defx mappings
 augroup END
 
 augroup php
@@ -192,27 +196,33 @@ set sidescroll=5
 " }}}
 " ================ Statusline ======================== {{{
 
-function! SetStatusline() abort
-  set statusline=%1*\ %{StatuslineMode()}                                       "Mode
-  set statusline+=\ %*%2*%{GitStatusline()}%*                                   "Git branch and status
-  set statusline+=\ %f                                                          "File path
-  set statusline+=\ %m                                                          "Modified indicator
-  set statusline+=\ %w                                                          "Preview indicator
-  set statusline+=\ %r                                                          "Read only indicator
-  set statusline+=\ %q                                                          "Quickfix list indicator
-  set statusline+=\ %=                                                          "Start right side layout
-  set statusline+=\ %{project_lint#statusline()}                                "Show status of project lint
-  set statusline+=\ %{anzu#search_status()}                                     "Search status
-  set statusline+=\ %2*\ %{&ft}                                                 "Filetype
-  set statusline+=\ \│\ %p%%                                                    "Percentage
-  set statusline+=\ \│\ %c                                                      "Column number
-  set statusline+=\ \│\ %l/%L                                                   "Current line number/Total line numbers
-  set statusline+=\ %*%#Error#%{AleStatus('error')}%*                           "Errors count
-  set statusline+=%#DiffText#%{AleStatus('warning')}%*                          "Warning count
+function! Statusline(is_bufenter) abort
+  let l:bufnr = expand('<abuf>')
+  let l:statusline = '%1* %{StatuslineMode()}'                                  "Mode
+  let l:statusline .= ' %*%2*%{GitStatusline()}%*'                              "Git branch and status
+  if &modified && a:is_bufenter
+    let l:statusline .= '%3*'
+  endif
+  let l:statusline .= ' %f'                                                     "File path
+  let l:statusline .= ' %m'                                                     "Modified indicator
+  let l:statusline .= ' %w'                                                     "Preview indicator
+  let l:statusline .= ' %r'                                                     "Read only indicator
+  let l:statusline .= ' %q'                                                     "Quickfix list indicator
+  let l:statusline .= ' %='                                                     "Start right side layout
+  let l:statusline .= ' %{project_lint#statusline()}'                           "Show status of project lint
+  let l:statusline .= ' %{anzu#search_status()}'                                "Search status
+  let l:statusline .= ' %2* %{&ft}'                                             "Filetype
+  let l:statusline .= ' │ %p%%'                                                 "Percentage
+  let l:statusline .= ' │ %c'                                                   "Column number
+  let l:statusline .= ' │ %l/%L'                                                "Current line number/Total line numbers
+  let l:statusline .= ' %*%#Error#%{AleStatus(''error'')}%*'                    "Errors count
+  let l:statusline .= '%#DiffText#%{AleStatus(''warning'')}%*'                  "Warning count
+  return l:statusline
 endfunction
 
 hi User1 guifg=#504945 gui=bold
 hi User2 guibg=#665c54 guifg=#ebdbb2
+hi User3 guifg=#ebdbb2 guibg=#fb4934 gui=NONE
 
 function! AleStatus(type) abort
   let l:count = ale#statusline#Count(bufnr(''))
@@ -242,18 +252,6 @@ function! GitStatusline() abort
   let l:result .= l:removed == 0 ? '' : ' -'.l:removed
   let l:result = join(filter([l:head, l:result], {-> !empty(v:val) }), '')
   return (empty(l:result) ? '' : printf(' %s ', l:result))
-endfunction
-
-function! HighlightModified() abort
-  let l:is_modified = getwinvar(winnr(), '&mod') && getbufvar(bufnr(''), '&mod')
-
-  if empty(l:is_modified)
-    hi StatusLine guifg=#ebdbb2 guibg=#504945 gui=NONE
-    return ''
-  endif
-
-  hi StatusLine guifg=#ebdbb2 guibg=#fb4934 gui=NONE
-  return ''
 endfunction
 
 function! StatuslineMode() abort
@@ -311,7 +309,7 @@ function! VimEnterSettings() abort
     call DefxOpen({ 'dir': l:buffer_path })
   endif
 
-  call SetStatusline()
+  set statusline=%!Statusline(0)
   call deoplete#custom#option({ 'async_timeout': 10, 'camel_case': 1 })
 endfunction
 
@@ -322,15 +320,6 @@ function! StripTrailingWhitespaces()
     call execute('%s/\s\+$//e')
     call histdel('/', -1)
     call cursor(l:l, l:c)
-  endif
-endfunction
-
-function! Search(...)
-  let l:default = a:0 > 0 ? expand('<cword>') : ''
-  let l:term = input('Search for: ', l:default)
-  if l:term !=? ''
-    let l:path = input('Path: ', '', 'file')
-    silent! execute 'CtrlSF "'.l:term.'" '.l:path
   endif
 endfunction
 
@@ -354,7 +343,7 @@ endfunction
 
 function! DefxOpen(...) abort
   let l:opts = get(a:, 1, {})
-  let l:args = '-winwidth=40 -direction=topleft -fnamewidth=50 -columns=project_lint:git:mark:filename:type'
+  let l:args = '-winwidth=40 -direction=topleft -fnamewidth=50 -columns=project_lint:git:icons:filename:size:time'
   let l:is_opened = bufwinnr('defx') > 0
 
   if has_key(l:opts, 'split')
@@ -483,10 +472,6 @@ nnoremap <silent><Leader>hf :call DefxOpen({ 'split': v:true, 'find_current_file
 " Toggle between last 2 buffers
 nnoremap <leader><tab> <c-^>
 
-" Filesearch plugin map for searching in whole folder
-nnoremap <silent><Leader>f :call Search()<CR>
-nnoremap <silent><Leader>F :call Search(v:true)<CR>
-
 " Toggle buffer list
 nnoremap <C-p> :Files<CR>
 nnoremap <Leader>b :Buffers<CR>
@@ -530,12 +515,15 @@ nnoremap <Leader>db :silent w <BAR> :silent %bd <BAR> e#<CR>
 
 nnoremap gx :call netrw#BrowseX(expand('<cfile>'), netrw#CheckIfRemote())<CR>
 
-nnoremap <Leader>/ :FlyGrep<CR>
-
 " Vim test mappings
 nnoremap <Leader>xx :TestFile<CR>
 nnoremap <Leader>xw :TestFile -- --watch<CR>
 nnoremap <Leader>xt :TestSuite<CR>
+
+" Search mappings
+nmap <Leader>f <Plug>CtrlSFPrompt
+vmap <Leader>F <Plug>CtrlSFVwordPath
+nmap <Leader>F <Plug>CtrlSFCwordPath
 
 " }}}
 " ================ Plugins setups ======================== {{{
@@ -550,6 +538,8 @@ let g:neosnippet#snippets_directory = ['~/.config/nvim/snippets']               
 
 let g:delimitMate_expand_cr = 1                                                 "Auto indent on enter
 
+let g:ale_virtualtext_cursor = 1                                                "Enable neovim's virtualtext support
+let g:ale_virtualtext_prefix = '  > '                                           "Move virtual text a bit more right
 let g:ale_linters = {'javascript': ['eslint']}                                  "Lint js with eslint
 let g:ale_fixers = {'javascript': ['prettier', 'eslint']}                       "Fix eslint errors
 let g:ale_javascript_prettier_options = '--print-width 100'                     "Set max width to 100 chars for prettier
