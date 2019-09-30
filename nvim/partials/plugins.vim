@@ -35,7 +35,7 @@ function! s:packager_init() abort
   call packager#add('AndrewRadev/tagalong.vim')
   call packager#add('sodapopcan/vim-twiggy')
   call packager#add('kristijanhusak/vim-create-pr')
-  call packager#add('gruvbox-community/gruvbox')
+  call packager#add('sainnhe/gruvbox-material')
   call packager#add('wakatime/vim-wakatime')
   call packager#add('kkoomen/vim-doge')
 endfunction

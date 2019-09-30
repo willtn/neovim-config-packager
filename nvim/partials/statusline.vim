@@ -7,7 +7,7 @@ augroup VimrcLightline
 augroup end
 
 let g:lightline = {
-      \ 'colorscheme': 'gruvbox',
+      \ 'colorscheme': 'gruvbox_material',
       \ 'active': {
                   \ 'left': [[ 'mode', 'paste'], ['git_status'], [ 'readonly', 'relativepath', 'custom_modified' ]],
                   \ 'right': [['linter_errors', 'linter_warnings'], ['indent', 'percent', 'lineinfo'], ['anzu', 'filetype']],

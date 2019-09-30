@@ -3,13 +3,11 @@ set termguicolors                                                               
 silent exe 'set background='.s:bg_color
 set synmaxcol=300                                                               "Use syntax highlighting only for 300 columns
 
-let g:gruvbox_italic = 1
-let g:gruvbox_sign_column = 'bg0'
-let g:gruvbox_invert_selection = 0
+let g:gruvbox_material_enable_bold = 1
 
 filetype plugin indent on
 syntax on
-silent! colorscheme gruvbox
+silent! colorscheme gruvbox-material
 
 augroup vimrc_colorscheme
   autocmd!
@@ -18,9 +16,9 @@ augroup vimrc_colorscheme
 augroup END
 
 function! s:set_gruvbox_colors() abort
-  hi link ALEVirtualTextError GruvboxRed
-  hi link ALEVirtualTextWarning GruvboxYellow
-  hi link ALEVirtualTextInfo GruvboxBlue
+  hi link ALEVirtualTextError Red
+  hi link ALEVirtualTextWarning Yellow
+  hi link ALEVirtualTextInfo Blue
 
   let g:fzf_colors = extend(get(g:, 'fzf_colors', {}), {
         \ 'fg': ['fg', 'GruvboxFg1'],
