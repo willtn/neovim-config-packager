@@ -1,62 +1,32 @@
-set completeopt-=preview                                                        "Disable preview window for autocompletion
 set pumheight=15                                                                "Maximum number of entries in autocomplete popup
 
 augroup vimrc_autocomplete
-  autocmd CursorHold * silent! call CocActionAsync('highlight')
-  autocmd CursorHoldI * silent! call CocActionAsync('showSignatureHelp')
-  autocmd BufNewFile,BufRead *.dbout let b:coc_enabled = 0
+  autocmd!
+  autocmd VimEnter * call s:setup_lsp()
+  autocmd FileType javascript,typescript,javascriptreact,typescriptreact let g:completion_trigger_character = ['.']
+  autocmd FileType vim let g:completion_trigger_character = ['.']
+  autocmd FileType php let g:completion_trigger_character = ['::', '->', ' ']
 augroup END
 
-let g:coc_user_config = {
-      \ 'javascript.suggestionActions.enabled': v:false,
-      \ 'prettier.printWidth': 100,
-      \ 'prettier.singleQuote': v:true,
-      \ 'sql.database': 'postgresql',
+function! s:setup_lsp() abort
+  lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
+endfunction
+set completeopt=menuone,noinsert,noselect
+
+let g:completion_enable_snippet = 'UltiSnips'
+let g:mucomplete#no_mappings = 1
+let g:mucomplete#chains = {
+      \ 'default': ['path', 'tags', 'keyn']
       \ }
 
-let g:coc_global_extensions = [
-      \ 'coc-go',
-      \ 'coc-tag',
-      \ 'coc-css',
-      \ 'coc-html',
-      \ 'coc-json',
-      \ 'coc-jest',
-      \ 'coc-prettier',
-      \ 'coc-tsserver',
-      \ 'coc-snippets',
-      \ 'coc-vimlsp',
-      \ 'coc-pairs',
-      \ 'coc-phpls',
-      \ 'coc-sql',
-      \ 'coc-db',
-      \ ]
+let g:UltiSnipsExpandTrigger="<c-z>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-vmap <leader>lf <Plug>(coc-format-selected)
-nmap <leader>lf <Plug>(coc-format-selected)
-nmap <leader>lF <Plug>(coc-format)
-nmap <leader>ld <Plug>(coc-definition)
-nmap <leader>lc <Plug>(coc-declaration)
-nmap <leader>lg <Plug>(coc-implementation)
-nmap <leader>lu <Plug>(coc-references)
-nmap <leader>lr <Plug>(coc-rename)
-nmap <leader>lq <Plug>(coc-fix-current)
-nmap <silent><leader>lh :call CocAction('doHover')<CR>
-vmap <leader>la <Plug>(coc-codeaction-selected)
-nmap <leader>la <Plug>(coc-codeaction-selected)
-inoremap <silent><C-Space> <C-x><C-o>
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+imap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<plug>(MUcompleteFwd)"
+imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<plug>(MUcompleteBwd)"
 
 set wildoptions=pum
 set wildignore=*.o,*.obj,*~                                                     "stuff to ignore when tab completing

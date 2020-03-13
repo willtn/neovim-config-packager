@@ -15,6 +15,7 @@ function! s:packager_init() abort
   call packager#add('tpope/vim-sleuth')
   call packager#add('tpope/vim-dadbod')
   call packager#add('kristijanhusak/vim-dadbod-ui')
+  call packager#add('SirVer/UltiSnips')
   call packager#add('lambdalisue/vim-backslash')
   call packager#add('AndrewRadev/splitjoin.vim')
   call packager#add('airblade/vim-gitgutter')
@@ -27,13 +28,15 @@ function! s:packager_init() abort
   call packager#add('haya14busa/vim-asterisk')
   call packager#add('osyo-manga/vim-anzu')
   call packager#add('stefandtw/quickfix-reflector.vim')
-  call packager#add('neoclide/coc.nvim', { 'branch': 'release' })
+  call packager#add('yukunlin/auto-pairs')
   call packager#add('w0rp/ale')
   call packager#add('honza/vim-snippets')
   call packager#add('AndrewRadev/tagalong.vim')
   call packager#add('kristijanhusak/vim-create-pr')
   call packager#add('wakatime/vim-wakatime')
   call packager#add('arzg/vim-colors-xcode')
+  call packager#add('neovim/nvim-lsp')
+  call packager#add('haorenW1025/completion-nvim')
 endfunction
 
 let g:mapleader = ','                                                           "Change leader to a comma
