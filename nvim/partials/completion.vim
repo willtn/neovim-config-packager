@@ -29,6 +29,13 @@ let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 imap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<plug>(MUcompleteFwd)"
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<plug>(MUcompleteBwd)"
 
+nmap <leader>ld <cmd>lua vim.lsp.buf.definition()<CR>
+nmap <leader>lc <cmd>lua vim.lsp.buf.declaration()<CR>
+nmap <leader>lg <cmd>lua vim.lsp.buf.implementation()<CR>
+nmap <leader>lu <cmd>lua vim.lsp.buf.references()<CR>
+nmap <leader>lr <cmd>lua vim.lsp.buf.rename()<CR>
+nmap <leader>lh <cmd>lua vim.lsp.buf.hover()<CR>
+
 set wildoptions=pum
 set wildignore=*.o,*.obj,*~                                                     "stuff to ignore when tab completing
 set wildignore+=*.git*
