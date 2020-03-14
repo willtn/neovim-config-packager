@@ -28,7 +28,7 @@ function! s:packager_init() abort
   call packager#add('haya14busa/vim-asterisk')
   call packager#add('osyo-manga/vim-anzu')
   call packager#add('stefandtw/quickfix-reflector.vim')
-  call packager#add('yukunlin/auto-pairs')
+  call packager#add('Raimondi/delimitMate')
   call packager#add('w0rp/ale')
   call packager#add('honza/vim-snippets')
   call packager#add('AndrewRadev/tagalong.vim')
@@ -92,6 +92,8 @@ let g:vimwiki_list = [{
 let g:matchup_matchparen_status_offscreen = 0                                   "Do not show offscreen closing match in statusline
 let g:matchup_matchparen_nomode = "ivV\<c-v>"                                   "Enable matchup only in normal mode
 let g:matchup_matchparen_deferred = 1                                           "Defer matchup highlights to allow better cursor movement performance
+
+let g:delimitMate_expand_cr = 1                                                 "Expand curly brackets on enter
 
 let g:db_ui_show_help = 0                                                       "Hide Press ? for help in dbui drawer
 let g:db_ui_win_position = 'right'                                              "Open DBUI drawer on right
