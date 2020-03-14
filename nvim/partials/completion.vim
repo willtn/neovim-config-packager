@@ -12,6 +12,7 @@ function! s:setup_lsp() abort
   lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.gopls.setup{on_attach=require'completion'.on_attach}
 endfunction
 set completeopt=menuone,noinsert,noselect
 
@@ -23,8 +24,8 @@ let g:mucomplete#chains = {
       \ }
 
 let g:UltiSnipsExpandTrigger="<c-z>"
-let g:UltiSnipsJumpForwardTrigger="<c-j>"
-let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+let g:UltiSnipsJumpForwardTrigger="<c-n>"
+let g:UltiSnipsJumpBackwardTrigger="<c-p>"
 
 imap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<plug>(MUcompleteFwd)"
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<plug>(MUcompleteBwd)"
