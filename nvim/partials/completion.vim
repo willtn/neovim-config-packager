@@ -18,6 +18,7 @@ set completeopt=menuone,noinsert,noselect
 
 let g:completion_enable_snippet = 'UltiSnips'
 let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
+let g:mucomplete#buffer_relative_paths = 1
 let g:mucomplete#no_mappings = 1
 let g:mucomplete#chains = {
       \ 'default': ['path', 'tags', 'keyn']

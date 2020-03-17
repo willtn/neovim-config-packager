@@ -5,10 +5,12 @@ set synmaxcol=300                                                               
 
 filetype plugin indent on
 syntax on
+let g:xcodelight_match_paren_style = 1
 let s:colorscheme = $NVIM_COLORSCHEME_BG ==? 'light' ? 'xcodelight' : 'xcodedark'
 silent! exe  'colorscheme '.s:colorscheme
 hi VertSplit guibg=NONE guifg=#8a99a6
 hi! Comment gui=italic
+
 
 
 augroup vimrc_colorscheme
