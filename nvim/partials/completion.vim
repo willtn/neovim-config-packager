@@ -18,18 +18,25 @@ set completeopt=menuone,noinsert,noselect
 
 let g:completion_enable_snippet = 'UltiSnips'
 let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
-let g:mucomplete#buffer_relative_paths = 1
-let g:mucomplete#no_mappings = 1
-let g:mucomplete#chains = {
-      \ 'default': ['path', 'tags', 'keyn']
-      \ }
 
 let g:UltiSnipsExpandTrigger="<c-z>"
 let g:UltiSnipsJumpForwardTrigger="<c-n>"
 let g:UltiSnipsJumpBackwardTrigger="<c-p>"
 
-imap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<plug>(MUcompleteFwd)"
-imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<plug>(MUcompleteBwd)"
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <TAB>
+  \ pumvisible() ? "\<C-n>" :
+  \ <SID>check_back_space() ? "\<TAB>" :
+  \ completion#trigger_completion()
+  \
+imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+
+imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
+imap <c-k> <cmd>lua require'source'.nextCompletion()<CR>
 
 nmap <leader>ld <cmd>lua vim.lsp.buf.definition()<CR>
 nmap <leader>lc <cmd>lua vim.lsp.buf.declaration()<CR>
