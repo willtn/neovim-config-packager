@@ -105,6 +105,11 @@ cnoremap <C-A> <Home>
 cnoremap <C-E> <End>
 cnoremap <C-B> <End>
 
+"rsi mappings
+cnoremap <C-A> <Home>
+cnoremap <C-E> <End>
+cnoremap <C-B> <End>
+
 function! s:close_buffer(...) abort
   if &buftype !=? ''
     return execute('q!')
