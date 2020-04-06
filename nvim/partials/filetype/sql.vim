@@ -1,4 +1,4 @@
 augroup vimrc_sql
   autocmd!
-  autocmd FileType sql nmap <buffer><silent><Leader>R :call CocAction('format')<CR>
+  autocmd FileType sql set equalprg=pg_format
 augroup END
