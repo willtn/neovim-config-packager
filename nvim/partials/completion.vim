@@ -6,6 +6,7 @@ augroup vimrc_autocomplete
   autocmd FileType javascript,typescript,javascriptreact,typescriptreact let g:completion_trigger_character = ['.']
   autocmd FileType vim let g:completion_trigger_character = ['.']
   autocmd FileType php let g:completion_trigger_character = ['::', '->', ' ']
+  autocmd BufEnter * lua require'completion'.on_attach()
 augroup END
 
 function! s:setup_lsp() abort
@@ -18,6 +19,13 @@ set completeopt=menuone,noinsert,noselect
 
 let g:completion_enable_snippet = 'UltiSnips'
 let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
+let g:completion_auto_change_source = 1
+let g:completion_chain_complete_list = [
+    \{'complete_items': ['lsp', 'snippet']},
+    \{'mode': 'tags'},
+    \{'mode': '<c-p>'},
+    \{'mode': '<c-n>'},
+\]
 
 let g:UltiSnipsExpandTrigger="<c-z>"
 let g:UltiSnipsJumpForwardTrigger="<c-n>"
