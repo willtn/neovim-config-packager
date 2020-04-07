@@ -24,8 +24,8 @@ let g:completion_chain_complete_list = [
     \{'complete_items': ['lsp', 'snippet']},
     \{'mode': 'tags'},
     \{'mode': 'file'},
+    \{'mode': 'keyn'},
     \{'mode': '<c-p>'},
-    \{'mode': '<c-n>'},
 \]
 
 let g:UltiSnipsExpandTrigger="<c-z>"
