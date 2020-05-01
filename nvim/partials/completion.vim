@@ -5,11 +5,13 @@ augroup vimrc_autocomplete
   autocmd VimEnter * call s:setup_lsp()
   autocmd FileType javascript,typescript,javascriptreact,typescriptreact let g:completion_trigger_character = ['.']
   autocmd FileType vim let g:completion_trigger_character = ['.']
+  autocmd FileType sql let g:completion_trigger_character = ['.']
   autocmd FileType php let g:completion_trigger_character = ['::', '->', ' ']
   autocmd BufEnter * lua require'completion'.on_attach()
 augroup END
 
 function! s:setup_lsp() abort
+  lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
   lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
@@ -20,13 +22,17 @@ set completeopt=menuone,noinsert,noselect
 let g:completion_enable_snippet = 'UltiSnips'
 let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
 let g:completion_auto_change_source = 1
-let g:completion_chain_complete_list = [
-    \{'complete_items': ['lsp', 'snippet']},
-    \{'mode': 'tags'},
-    \{'mode': 'file'},
-    \{'mode': 'keyn'},
-    \{'mode': '<c-p>'},
-\]
+let g:completion_chain_complete_list = {
+      \ 'sql': [
+      \   {'complete_items': ['vim-dadbod-completion']},
+      \   {'mode': '<c-n>'},
+      \],
+      \ 'default': [
+      \    {'complete_items': ['lsp', 'snippet', 'path']},
+      \    {'mode': 'tags'},
+      \    {'mode': 'keyn'},
+      \    {'mode': '<c-p>'},
+      \  ]}
 
 let g:UltiSnipsExpandTrigger="<c-z>"
 let g:UltiSnipsJumpForwardTrigger="<c-n>"
