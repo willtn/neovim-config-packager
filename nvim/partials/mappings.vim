@@ -24,7 +24,6 @@ nnoremap j gj
 nnoremap k gk
 
 " Map for Escape key
-inoremap jj <Esc>
 tnoremap <Leader>jj <C-\><C-n>
 
 " Yank to the end of the line
@@ -55,8 +54,8 @@ vnoremap K :m '<-2<CR>gv=gv
 nnoremap <Leader>e :lopen<CR>
 nnoremap <Leader>E :copen<CR>
 
-nnoremap <silent><Leader>q :call <sid>close_buffer()<CR>
-nnoremap <silent><Leader>Q :call <sid>close_buffer(v:true)<CR>
+nnoremap <silent><Leader>q :q<CR>
+nnoremap <silent><Leader>Q :q!<CR>
 
 " Toggle between last 2 buffers
 nnoremap <leader><tab> <c-^>
@@ -109,24 +108,6 @@ cnoremap <C-B> <End>
 cnoremap <C-A> <Home>
 cnoremap <C-E> <End>
 cnoremap <C-B> <End>
-
-function! s:close_buffer(...) abort
-  if &buftype !=? ''
-    return execute('q!')
-  endif
-  let l:windowCount = winnr('$')
-  let l:totalBuffers = len(getbufinfo({ 'buflisted': 1 }))
-  let l:noSplits = l:windowCount ==? 1
-  let l:bang = a:0 > 0 ? '!' : ''
-  if l:totalBuffers > 1 && l:noSplits
-    let l:command = 'bp'
-    if buflisted(bufnr('#'))
-      let l:command .= '|bd'.l:bang.'#'
-    endif
-    return execute(l:command)
-  endif
-  return execute('q'.l:bang)
-endfunction
 
 nnoremap <silent> gF :call <sid>open_file_or_create_new()<CR>
 

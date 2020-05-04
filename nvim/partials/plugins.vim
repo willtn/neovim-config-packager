@@ -101,3 +101,5 @@ let g:db_ui_win_position = 'right'                                              
 let g:db_ui_use_nerd_fonts = 1                                                  "Use nerd fonts for DBUI
 
 let g:js_file_import_use_fzf = 1                                                "Use FZF for js file import prompts
+
+let g:db_async = 1                                                              "Test dadbod async
