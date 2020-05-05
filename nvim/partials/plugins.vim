@@ -16,7 +16,6 @@ function! s:packager_init() abort
   call packager#add('tpope/vim-dadbod')
   call packager#add('kristijanhusak/vim-dadbod-ui')
   call packager#add('kristijanhusak/vim-dadbod-completion')
-  call packager#add('SirVer/UltiSnips')
   call packager#add('lambdalisue/vim-backslash')
   call packager#add('AndrewRadev/splitjoin.vim')
   call packager#add('airblade/vim-gitgutter')

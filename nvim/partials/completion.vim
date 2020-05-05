@@ -7,6 +7,7 @@ augroup vimrc_autocomplete
   autocmd FileType vim let g:completion_trigger_character = ['.']
   autocmd FileType sql let g:completion_trigger_character = ['.']
   autocmd FileType php let g:completion_trigger_character = ['::', '->', ' ']
+  autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd BufEnter * lua require'completion'.on_attach()
 augroup END
 
@@ -19,7 +20,6 @@ function! s:setup_lsp() abort
 endfunction
 set completeopt=menuone,noinsert,noselect
 
-let g:completion_enable_snippet = 'UltiSnips'
 let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
 let g:completion_auto_change_source = 1
 let g:completion_chain_complete_list = {
@@ -28,15 +28,11 @@ let g:completion_chain_complete_list = {
       \   {'mode': '<c-n>'},
       \],
       \ 'default': [
-      \    {'complete_items': ['lsp', 'snippet', 'path']},
+      \    {'complete_items': ['lsp', 'path']},
       \    {'mode': 'tags'},
       \    {'mode': 'keyn'},
       \    {'mode': '<c-p>'},
       \  ]}
-
-let g:UltiSnipsExpandTrigger="<c-z>"
-let g:UltiSnipsJumpForwardTrigger="<c-n>"
-let g:UltiSnipsJumpBackwardTrigger="<c-p>"
 
 function! s:check_back_space() abort
     let col = col('.') - 1
