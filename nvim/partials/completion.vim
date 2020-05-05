@@ -20,7 +20,7 @@ function! s:setup_lsp() abort
 endfunction
 set completeopt=menuone,noinsert,noselect
 
-let g:completion_confirm_key_rhs = "\<Plug>delimitMateCR"
+let g:completion_confirm_key = "\<C-y>"
 let g:completion_auto_change_source = 1
 let g:completion_chain_complete_list = {
       \ 'sql': [
@@ -39,11 +39,31 @@ function! s:check_back_space() abort
     return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
 
-inoremap <silent><expr> <TAB>
-  \ pumvisible() ? "\<C-n>" :
-  \ <SID>check_back_space() ? "\<TAB>" :
-  \ completion#trigger_completion()
-  \
+
+let s:snippets = {
+      \ 'cl': "console.log();\<Left>\<Left>",
+      \ 'class': "class {\<CR>}\<C-o>% \<Left>",
+      \ }
+
+function s:tab_completion() abort
+  let word = matchlist(getline('.')[0:(col('.') - 1)], '\k*$')
+  if !empty(word[0]) && has_key(s:snippets, word[0])
+    return "\<C-w>".s:snippets[word[0]]
+  endif
+
+  if pumvisible()
+    return "\<C-n>"
+  endif
+
+  if s:check_back_space()
+    return "\<TAB>"
+  endif
+
+  return completion#trigger_completion()
+endfunction
+
+inoremap <silent><expr> <TAB> <sid>tab_completion()
+
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
 imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
