@@ -70,7 +70,7 @@ endfunction
 
 function s:check_omni(timer) abort
   if !pumvisible()
-    return feedkeys("\<C-e>\<C-n>")
+    return feedkeys("\<C-g>\<C-g>\<C-n>")
   endif
 endfunction
 
