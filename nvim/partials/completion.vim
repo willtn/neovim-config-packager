@@ -19,7 +19,6 @@ function! s:setup_lsp() abort
   lua require'nvim_lsp'.intelephense.setup{}
   lua require'nvim_lsp'.gopls.setup{}
 endfunction
-set completeopt=menuone,noinsert,noselect
 
 let g:completion_confirm_key = "\<C-y>"
 let g:completion_auto_change_source = 1
