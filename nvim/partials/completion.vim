@@ -1,24 +1,20 @@
 set pumheight=15                                                                "Maximum number of entries in autocomplete popup
-set completeopt-=preview
 
 augroup vimrc_autocomplete
   autocmd!
   autocmd VimEnter * call s:setup_lsp()
-  " autocmd FileType javascript,typescript,javascriptreact,typescriptreact let g:completion_trigger_character = ['.']
-  " autocmd FileType vim let g:completion_trigger_character = ['.']
-  " autocmd FileType sql let g:completion_trigger_character = ['.']
-  " autocmd FileType php let g:completion_trigger_character = ['::', '->', ' ']
   autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  " autocmd BufEnter * lua require'completion'.on_attach()
+  autocmd BufEnter * lua require'completion'.on_attach()
 augroup END
 
 function! s:setup_lsp() abort
-  " lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
-  lua require'nvim_lsp'.tsserver.setup{}
-  lua require'nvim_lsp'.vimls.setup{}
-  lua require'nvim_lsp'.intelephense.setup{}
-  lua require'nvim_lsp'.gopls.setup{}
+  lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
+  lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.gopls.setup{on_attach=require'completion'.on_attach}
 endfunction
+set completeopt=menuone,noinsert,noselect
 
 let g:completion_confirm_key = "\<C-y>"
 let g:completion_auto_change_source = 1
@@ -59,26 +55,15 @@ function s:tab_completion() abort
     return "\<TAB>"
   endif
 
-  if empty(&omnifunc)
-    return "\<C-n>"
-  endif
-
-  call timer_start(100, function('s:check_omni'))
-  return "\<C-x>\<C-o>"
-endfunction
-
-function s:check_omni(timer) abort
-  if !pumvisible()
-    return feedkeys("\<C-g>\<C-g>\<C-n>")
-  endif
+  return completion#trigger_completion()
 endfunction
 
 inoremap <silent><expr> <TAB> <sid>tab_completion()
 
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
-" imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
-" imap <c-k> <cmd>lua require'source'.nextCompletion()<CR>
+imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
+imap <c-k> <cmd>lua require'source'.nextCompletion()<CR>
 
 nmap <leader>ld <cmd>lua vim.lsp.buf.definition()<CR>
 nmap <leader>lc <cmd>lua vim.lsp.buf.declaration()<CR>
