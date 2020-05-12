@@ -50,10 +50,7 @@ nnoremap <nowait><silent><Plug>(JsInjectDependency) :<C-u>call <sid>inject_depen
 
 augroup javascript
   autocmd!
-  autocmd FileType javascript,javascriptreact nmap <buffer><silent><C-]> <Plug>(JsGotoDefinition)
-  autocmd FileType javascript,javascriptreact xmap <buffer><silent><C-]> <Plug>(JsGotoDefinition)
-  autocmd FileType javascript,javascriptreact nmap <buffer><silent><Leader>] <C-W>v<Plug>(JsGotoDefinition)
-  autocmd FileType javascript,javascriptreact xmap <buffer><silent><Leader>] <C-W>vgv<Plug>(JsGotoDefinition)
+  autocmd FileType javascript,javascriptreact setlocal tagfunc=jsfileimport#tagfunc
   autocmd FileType javascript,javascriptreact nmap <buffer><silent><Leader>ll <Plug>(JsConsoleLog)
   autocmd FileType javascript,javascriptreact nmap <nowait><buffer><silent><Leader>d <Plug>(JsInjectDependency)
 augroup END
