@@ -25,7 +25,8 @@ let g:completion_chain_complete_list = {
       \   {'mode': '<c-n>'},
       \],
       \ 'default': [
-      \    {'complete_items': ['lsp', 'path']},
+      \    {'complete_items': ['lsp']},
+      \    {'complete_items': ['path'], 'triggered_only': ['/']},
       \    {'mode': 'tags'},
       \    {'mode': 'keyn'},
       \    {'mode': '<c-p>'},
