@@ -60,6 +60,7 @@ augroup vimrc
   autocmd FileType json setlocal equalprg=python\ -m\ json.tool
   autocmd TermOpen * setlocal nonumber norelativenumber
   autocmd VimEnter * call s:set_path()
+  autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank("Search", 1000)
 augroup END
 
 augroup numbertoggle
