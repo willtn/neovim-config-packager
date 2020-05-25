@@ -1,42 +1,25 @@
 set pumheight=15                                                                "Maximum number of entries in autocomplete popup
+set completeopt-=preview
 
+let s:complete_finished = v:false
 augroup vimrc_autocomplete
   autocmd!
   autocmd VimEnter * call s:setup_lsp()
   autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd BufEnter * lua require'completion'.on_attach()
+  autocmd CompleteDone * let s:complete_finished = v:true
 augroup END
 
 function! s:setup_lsp() abort
-  lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
-  lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.gopls.setup{on_attach=require'completion'.on_attach}
+  lua require'nvim_lsp'.tsserver.setup{}
+  lua require'nvim_lsp'.vimls.setup{}
+  lua require'nvim_lsp'.intelephense.setup{}
+  lua require'nvim_lsp'.gopls.setup{}
 endfunction
-set completeopt=menuone,noinsert,noselect
-
-let g:completion_confirm_key = "\<C-y>"
-let g:completion_sorting = 'none'
-let g:completion_auto_change_source = 1
-let g:completion_chain_complete_list = {
-      \ 'sql': [
-      \   {'complete_items': ['vim-dadbod-completion']},
-      \   {'mode': '<c-n>'},
-      \],
-      \ 'default': [
-      \    {'complete_items': ['lsp']},
-      \    {'complete_items': ['path'], 'triggered_only': ['/']},
-      \    {'mode': 'tags'},
-      \    {'mode': 'keyn'},
-      \    {'mode': '<c-p>'},
-      \  ]}
 
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
-
 
 let s:snippets = {
       \ 'cl': "console.log();\<Left>\<Left>",
@@ -57,15 +40,23 @@ function s:tab_completion() abort
     return "\<TAB>"
   endif
 
-  return completion#trigger_completion()
+  let s:complete_finished = v:false
+  call timer_start(10, function('s:verify_completion'), { 'repeat': -1 })
+  return "\<C-x>\<C-o>"
+endfunction
+
+function! s:verify_completion(timer) abort
+  if s:complete_finished
+    call timer_stop(a:timer)
+    if !pumvisible()
+      call feedkeys("\<C-e>\<C-n>")
+    endif
+  endif
 endfunction
 
 inoremap <silent><expr> <TAB> <sid>tab_completion()
 
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
-
-imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
-imap <c-k> <cmd>lua require'source'.nextCompletion()<CR>
 
 nmap <leader>ld <cmd>lua vim.lsp.buf.definition()<CR>
 nmap <leader>lc <cmd>lua vim.lsp.buf.declaration()<CR>
