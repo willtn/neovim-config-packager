@@ -18,7 +18,7 @@ endfunction
 
 function! s:check_back_space() abort
     let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~ '\s'
+    return !col || getline('.')[col - 1]  =~? '\s'
 endfunction
 
 let s:snippets = {
@@ -41,7 +41,7 @@ function s:tab_completion() abort
   endif
 
   let s:complete_finished = v:false
-  call timer_start(10, function('s:verify_completion'), { 'repeat': -1 })
+  let s:timer = timer_start(80, function('s:verify_completion'), { 'repeat': -1 })
   return "\<C-x>\<C-o>"
 endfunction
 
@@ -54,7 +54,44 @@ function! s:verify_completion(timer) abort
   endif
 endfunction
 
+fun! s:fnameescape(p)
+  return escape(fnameescape(a:p), '}')
+endf
+
+" Taken from mucomplete
+" https://github.com/lifepillar/vim-mucomplete/blob/master/autoload/mucomplete/path.vim#L78
+fun! s:path_completion() abort
+  let l:prefix = matchstr(getline('.'), '\f\%(\f\|\s\)*\%'.col('.').'c')
+  while strlen(l:prefix) > 0 " Try to find an existing path (consider paths with spaces, too)
+    if l:prefix ==# '~'
+      let l:files = glob('~', 0, 1, 1)
+      if !empty(l:files)
+        call complete(col('.') - 1, map(l:files, '{ "word": v:val, "menu": "[dir]" }'))
+      endif
+      return ''
+    endif
+
+    let l:files = glob(
+          \ (l:prefix !~# '^[/~]'
+          \   ? s:fnameescape(expand('%:p:h')) . '/'
+          \   : '')
+          \ . s:fnameescape(l:prefix) . '*', 0, 1, 1)
+    if !empty(l:files)
+      call complete(col('.') - len(fnamemodify(l:prefix, ':t')), map(l:files,
+            \  '{
+            \      "word": fnamemodify(v:val, ":t"),
+            \      "menu": (isdirectory(v:val) ? "[dir]" : "[file]"),
+            \   }'
+            \ ))
+      return ''
+    endif
+    let l:prefix = matchstr(l:prefix, '\%(\s\|=\)\zs.*[/~].*$', 1) " Next potential path
+  endwhile
+  return ''
+endf
+
 inoremap <silent><expr> <TAB> <sid>tab_completion()
+inoremap <silent> <C-space> <c-r>=<sid>path_completion()<CR>
 
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
