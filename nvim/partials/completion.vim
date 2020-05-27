@@ -2,18 +2,18 @@ set pumheight=15                                                                
 set completeopt-=preview
 
 let s:complete_finished = v:false
+let s:completed_item = {}
 augroup vimrc_autocomplete
   autocmd!
   autocmd VimEnter * call s:setup_lsp()
   autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd CompleteDone * let s:complete_finished = v:true
+  autocmd CompleteDone * let s:complete_finished = v:true | let s:completed_item = v:completed_item
 augroup END
 
 function! s:setup_lsp() abort
-  lua require'nvim_lsp'.tsserver.setup{}
-  lua require'nvim_lsp'.vimls.setup{}
-  lua require'nvim_lsp'.intelephense.setup{}
-  lua require'nvim_lsp'.gopls.setup{}
+  for lsp in ['tsserver', 'vimls', 'intelephense', 'gopls']
+    exe printf("lua require'nvim_lsp'.%s.setup{}", lsp)
+  endfor
 endfunction
 
 function! s:check_back_space() abort
@@ -41,6 +41,7 @@ function s:tab_completion() abort
   endif
 
   let s:complete_finished = v:false
+  let s:completed_item = {}
   let s:timer = timer_start(80, function('s:verify_completion'), { 'repeat': -1 })
   return "\<C-x>\<C-o>"
 endfunction
@@ -48,8 +49,8 @@ endfunction
 function! s:verify_completion(timer) abort
   if s:complete_finished
     call timer_stop(a:timer)
-    if !pumvisible()
-      call feedkeys("\<C-e>\<C-n>")
+    if !pumvisible() && empty(s:completed_item)
+      call feedkeys("\<C-g>\<C-g>\<C-n>")
     endif
   endif
 endfunction
