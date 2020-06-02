@@ -5,6 +5,7 @@ augroup vimrc_autocomplete
   autocmd VimEnter * call s:setup_lsp()
   autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd BufEnter * lua require'completion'.on_attach()
+  autocmd FileType sql let g:completion_trigger_character = ['.', '"']
 augroup END
 
 function! s:setup_lsp() abort
