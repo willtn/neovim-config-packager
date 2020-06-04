@@ -1,43 +1,31 @@
 set pumheight=15                                                                "Maximum number of entries in autocomplete popup
+set completeopt-=preview
 
 augroup vimrc_autocomplete
   autocmd!
   autocmd VimEnter * call s:setup_lsp()
-  autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd BufEnter * lua require'completion'.on_attach()
-  autocmd FileType sql let g:completion_trigger_character = ['.', '"']
+  autocmd FileType javascript,javascriptreact,vim,php,gopls setlocal omnifunc=CustomOmni
 augroup END
 
-function! s:setup_lsp() abort
-  lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
-  lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
-  lua require'nvim_lsp'.gopls.setup{on_attach=require'completion'.on_attach}
+function! CustomOmni(findstart, base) abort
+  if a:findstart == 1
+    return -1
+  endif
+  lua require'complete'.trigger_custom_complete()
+  return -2
 endfunction
-set completeopt=menuone,noinsert,noselect
 
-let g:completion_confirm_key = "\<C-y>"
-let g:completion_sorting = 'none'
-let g:completion_auto_change_source = 1
-let g:completion_chain_complete_list = {
-      \ 'sql': [
-      \   {'complete_items': ['vim-dadbod-completion']},
-      \   {'mode': '<c-n>'},
-      \],
-      \ 'default': [
-      \    {'complete_items': ['lsp']},
-      \    {'complete_items': ['path'], 'triggered_only': ['/']},
-      \    {'mode': 'tags'},
-      \    {'mode': 'keyn'},
-      \    {'mode': '<c-p>'},
-      \  ]}
+function! s:setup_lsp() abort
+  lua require'nvim_lsp'.tsserver.setup{}
+  lua require'nvim_lsp'.vimls.setup{}
+  lua require'nvim_lsp'.intelephense.setup{}
+  lua require'nvim_lsp'.gopls.setup{}
+endfunction
 
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
-
 
 let s:snippets = {
       \ 'cl': "console.log();\<Left>\<Left>",
@@ -58,15 +46,16 @@ function s:tab_completion() abort
     return "\<TAB>"
   endif
 
-  return completion#trigger_completion()
+  if empty(&omnifunc)
+    return "\<C-n>"
+  endif
+
+  return "\<C-x>\<C-o>"
 endfunction
 
 inoremap <silent><expr> <TAB> <sid>tab_completion()
 
 imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
-
-imap <c-j> <cmd>lua require'source'.prevCompletion()<CR>
-imap <c-k> <cmd>lua require'source'.nextCompletion()<CR>
 
 nmap <leader>ld <cmd>lua vim.lsp.buf.definition()<CR>
 nmap <leader>lc <cmd>lua vim.lsp.buf.declaration()<CR>
