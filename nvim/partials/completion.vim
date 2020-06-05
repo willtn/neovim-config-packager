@@ -46,11 +46,54 @@ function s:tab_completion() abort
     return "\<TAB>"
   endif
 
+  " Use build in vim completion until issue with neovim is fixed
+  " https://github.com/neovim/neovim/issues/12431
+  if &filetype ==? 'vim'
+    return "\<C-x>\<C-v>"
+  endif
+
   if empty(&omnifunc)
     return "\<C-n>"
   endif
 
   return "\<C-x>\<C-o>"
+endfunction
+
+fun! s:fnameescape(p)
+  return escape(fnameescape(a:p), '}')
+endf
+
+" Taken from mucomplete
+" https://github.com/lifepillar/vim-mucomplete/blob/master/autoload/mucomplete/path.vim#L78
+function! CustomPathCompletion() abort
+  let l:prefix = matchstr(getline('.'), '\f\%(\f\|\s\)*\%'.col('.').'c')
+  while strlen(l:prefix) > 0 " Try to find an existing path (consider paths with spaces, too)
+    if l:prefix ==# '~'
+      let l:files = glob('~', 0, 1, 1)
+      if !empty(l:files)
+        call complete(col('.') - 1, map(l:files, '{ "word": v:val, "menu": "[dir]" }'))
+        return ''
+      endif
+      return feedkeys("\<C-g>\<C-g>\<C-n>")
+    endif
+
+    let l:files = glob(
+          \ (l:prefix !~# '^[/~]'
+          \   ? s:fnameescape(expand('%:p:h')) . '/'
+          \   : '')
+          \ . s:fnameescape(l:prefix) . '*', 0, 1, 1)
+    if !empty(l:files)
+      call complete(col('.') - len(fnamemodify(l:prefix, ':t')), map(l:files,
+            \  '{
+            \      "word": fnamemodify(v:val, ":t"),
+            \      "menu": (isdirectory(v:val) ? "[dir]" : "[file]"),
+            \   }'
+            \ ))
+      return ''
+    endif
+    let l:prefix = matchstr(l:prefix, '\%(\s\|=\)\zs.*[/~].*$', 1) " Next potential path
+  endwhile
+  return feedkeys("\<C-g>\<C-g>\<C-n>")
 endfunction
 
 inoremap <silent><expr> <TAB> <sid>tab_completion()
