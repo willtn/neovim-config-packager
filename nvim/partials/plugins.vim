@@ -34,6 +34,7 @@ function! s:packager_init() abort
   call packager#add('wakatime/vim-wakatime')
   call packager#add('arzg/vim-colors-xcode')
   call packager#add('neovim/nvim-lsp')
+  call packager#add('haorenW1025/completion-nvim')
   call packager#add('romgrk/todoist.nvim', { 'do': 'npm install' })
 endfunction
 
