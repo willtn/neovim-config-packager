@@ -106,6 +106,7 @@ nmap <leader>lg <cmd>lua vim.lsp.buf.implementation()<CR>
 nmap <leader>lu <cmd>lua vim.lsp.buf.references()<CR>
 nmap <leader>lr <cmd>lua vim.lsp.buf.rename()<CR>
 nmap <leader>lh <cmd>lua vim.lsp.buf.hover()<CR>
+nmap <leader>lf <cmd>lua vim.lsp.buf.formatting()<CR>
 
 set wildoptions=pum
 set wildignore=*.o,*.obj,*~                                                     "stuff to ignore when tab completing
