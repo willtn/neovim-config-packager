@@ -9,7 +9,6 @@ augroup vimrc_autocomplete
 augroup END
 
 function! s:setup_lsp() abort
-  lua require'source'.addCompleteItems('vim-dadbod-completion', require'vim_dadbod_completion'.complete_item)
   lua require'nvim_lsp'.tsserver.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.vimls.setup{on_attach=require'completion'.on_attach}
   lua require'nvim_lsp'.intelephense.setup{on_attach=require'completion'.on_attach}
