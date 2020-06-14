@@ -80,13 +80,13 @@ if [[ -z $1 ]]; then
   if echo "$answer" | grep -iq "^y" ;then
     echo "Installing dependencies..." \
     && install_git \
-    && install_i3 \
+#    && install_i3 \
     && install_oh_my_zsh \
     && install_neovim \
     && install_ripgrep \
     && install_ctags \
     && install_diff_so_fancy \
-    && install_kitty \
+#    && install_kitty \
     && install_alacritty \
     && install_tmux \
     && echo "Finished installation."
