@@ -55,6 +55,13 @@ install_i3() {
     && ln -s $(pwd)/i3 ~/.i3
 }
 
+install_alacritty() {
+  echo "Installing alacritty..." \
+    && rm -rf ~/.config/alacritty \
+    && xdg-open "https://github.com/alacritty/alacritty/releases" \
+    && ln -s $(pwd)/alacritty ~/.config/alacritty
+}
+
 if [[ -z $1 ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
@@ -67,6 +74,7 @@ if [[ -z $1 ]]; then
     && install_ctags \
     && install_diff_so_fancy \
     && install_kitty \
+    && install_alacritty \
     && echo "Finished installation."
   fi
 else
