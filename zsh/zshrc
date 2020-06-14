@@ -1,142 +1,73 @@
-# Path to your oh-my-zsh configuration.
-ZSH=$HOME/.oh-my-zsh
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
 
-ZSH_THEME="lambda-mod"
+# Path to antigen installation.
+export ANTIGEN="$HOME/.antigen"
 
-plugins=(
-  git
-  zsh-autosuggestions
-  docker-compose
-  z
-  zsh-syntax-highlighting
-  history-substring-search
+# Path to XDG_CONFIG_HOME.
+export XDG_CONFIG_HOME="$HOME/.config"
+
+# Bootstrap oh-my-zsh
+ENABLE_CORRECTION="true"
+source $ZSH/oh-my-zsh.sh
+
+## Antigen
+source $ANTIGEN/antigen.zsh
+
+antigen use oh-my-zsh
+
+antigen bundles <<EOBUNDLES
+  alexrochas/zsh-extract
+  alexrochas/zsh-git-semantic-commits
+  alexrochas/zsh-vim-crtl-z
   command-not-found
   copydir
   copyfile
-  dircycle
-  vi-mode
+  git
+  git-auto-fetch
   jira
-)
+  nvm
+  tmux
+  zsh-users/zsh-autosuggestions
+  zsh-users/zsh-completions
+  zsh-users/zsh-syntax-highlighting
+EOBUNDLES
 
-ENABLE_CORRECTION="true"
+antigen theme https://github.com/halfo/lambda-mod-zsh-theme lambda-mod
 
-source $ZSH/oh-my-zsh.sh
-. ~/z.sh
+antigen apply
 
-if [[ -r ~/.phpbrew/bashrc ]]; then
-  source ~/.phpbrew/bashrc
-fi
-
-alias n='nvim .'
-alias install='sudo pacman -S'
-alias search='sudo pacman -Ss'
-alias remove='sudo pacman -R'
-alias update='sudo pacman -Sy'
-alias yinstall='yaourt -S'
-alias ysearch='yaourt -Ss'
-alias yremove='yaourt -R'
-alias yupdate='yaourt -Sy'
-alias c7="sudo chmod -R 777"
-alias l="ls -l"
-alias c="clear"
-alias www="cd /var/www"
-alias weather="curl http://wttr.in/Novi sad"
-alias gs="git status"
-alias code="cd ~/code"
-alias lg="lazygit"
-alias resetbg="source ~/neovim-config/toggle_bg.sh"
-alias togglebg="source ~/neovim-config/toggle_bg.sh toggle"
-
-export PATH=$PATH:/usr/local/go/bin:~/go/bin:~/.local/bin
-export LESS=R
+# exports
 export EDITOR=nvim
-export MANPAGER="nvim -c 'set ft=man' -"
-export FZF_DEFAULT_COMMAND='rg --files'
-export LESS=R
-export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="fg=magenta,bold,underline"
-setopt HIST_IGNORE_ALL_DUPS
+export TWOBOX=115
 
-# use ctrl+t to toggle autosuggestions(hopefully this wont be needed as
-# zsh-autosuggestions is designed to be unobtrusive)
-export KEYTIMEOUT=1
+# aliases
+alias vim='nvim'
 
-if [ $NVIM_COLORSCHEME_BG = 'dark' ]; then
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=239'
-else
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=250'
-fi
-[ -f ~/.zsh_secret ] && source ~/.zsh_secret
+alias testall='yarn test --all'
+alias testper='yarn test --packages performance'
+alias testedc='yarn test --packages edc-web'
 
-export NVM_DIR="/home/kristijan/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+alias typeall='yarn typecheck --all'
+alias typeedc='yarn typecheck --packages edc-web'
+alias typepes='yarn typecheck --packages pes-web'
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+alias uiper='yarn dev --packages performance --agency performance.qa.evidence.com'
+alias uiedc='yarn dev --agency vietnamui.qa.evidence.com'
+alias uipes='yarn dev --agency vietnamui.qa.evidence.com --packages pes-web'
 
-eval $(keychain --eval --quiet ~/.ssh/id_rsa)
+alias buildedc='NODE_OPTIONS="--max-old-space-size=4096" lerna run build --scope @axon/edc-web'
+alias buildpes='yarn build --packages pes-web'
 
-bindkey '^[[Z' reverse-menu-complete # Use shift tab for backward autocompletion
+alias weather="curl http://wttr.in"
 
-function zle-keymap-select zle-line-init zle-line-finish
-{
-  case $KEYMAP in
-      vicmd)      print -n '\033[1 q';; # block cursor
-      viins|main) print -n '\033[5 q';; # line cursor
-  esac
-}
+# nvm
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+source "$NVM_DIR/nvm.sh"
 
-zle -N zle-line-init
-zle -N zle-line-finish
-zle -N zle-keymap-select
+# zsh-autosuggestions
+bindkey '^ ' autosuggest-accept
 
-### Bind up and down keys for history-substring-search plugin
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
-
-### Fix slowness of pastes with zsh-syntax-highlighting.zsh
-### Source: https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
-pasteinit() {
-  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-  zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
-}
-
-pastefinish() {
-  zle -N self-insert $OLD_SELF_INSERT
-}
-zstyle :bracketed-paste-magic paste-init pasteinit
-zstyle :bracketed-paste-magic paste-finish pastefinish
-### Fix slowness of pastes
-
-### Custom FZF functions
-### @see: https://github.com/junegunn/fzf/wiki/examples
-# Open link from Chrome history
-chr() {
-  local cols sep google_history
-  cols=$(( COLUMNS / 3 ))
-  sep='{::}'
-  google_history="$HOME/.config/google-chrome/Default/History"
-
-  cp -f "$google_history" /tmp/h
-  sqlite3 -separator $sep /tmp/h \
-    "select substr(title, 1, $cols), url
-     from urls order by last_visit_time desc" |
-  awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
-  fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs xdg-open > /dev/null 2> /dev/null
-}
-
-# fbr - checkout git branch (including remote branches)
-fbr() {
-  local branches branch
-  branches=$(git branch --all | grep -v HEAD) &&
-  branch=$(echo "$branches" |
-           fzf -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-}
-
-# Autocomplete Z items
-unalias z 2> /dev/null
-z() {
-  [ $# -gt 0 ] && _z "$*" && return
-  cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
-}
-
-source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Zsh-Vim-Crtl-Z
+zle -N fancy-ctrl-z
+bindkey '^Z' fancy-ctrl-z
