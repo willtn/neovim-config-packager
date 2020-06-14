@@ -62,11 +62,19 @@ install_alacritty() {
     && ln -s $(pwd)/alacritty ~/.config/alacritty
 }
 
+install_git() {
+  echo "Installing git..." \
+    && rm -rf ~/.config/git \
+    && sudo apt-get install -y git \
+    && ln -s $(pwd)/git ~/.config/git
+}
+
 if [[ -z $1 ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
   if echo "$answer" | grep -iq "^y" ;then
     echo "Installing dependencies..." \
+    && install_git \
     && install_i3 \
     && install_oh_my_zsh \
     && install_neovim \

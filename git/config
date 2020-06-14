@@ -1,0 +1,6 @@
+[user]
+	email = trungn@axon.com
+	name = Trung Nguyen
+[core]
+	editor = nvim
+	ignorecase = false
