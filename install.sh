@@ -64,6 +64,16 @@ install_git() {
     && ln -s $(pwd)/git ~/.config/git
 }
 
+install_tmux() {
+  echo "Installing tmux..." \
+  && rm -rf ~/.tmux.conf ~/.tmux.conf.local ~/.tmux \
+  && sudo apt-get install -y tmux \
+  && ln -s $(pwd)/tmux.conf ~/.tmux.conf \
+  && ln -s $(pwd)/tmux.conf.local ~/.tmux.conf.local \
+  && git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm \
+  && ~/.tmux/plugins/tpm/bin/install_plugins
+}
+
 if [[ -z $1 ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
@@ -78,6 +88,7 @@ if [[ -z $1 ]]; then
     && install_diff_so_fancy \
     && install_kitty \
     && install_alacritty \
+    && install_tmux \
     && echo "Finished installation."
   fi
 else
