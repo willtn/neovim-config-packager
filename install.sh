@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 install_oh_my_zsh() {
   echo "Setting up zsh..." \
-  && rm -rf ~/.zshrc ~/.oh-my-zsh \
+  && rm -rf ~/.zshrc ~/.oh-my-zsh ~/.antigen \
   && ln -s $(pwd)/zsh/zshrc ~/.zshrc \
   && git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
-  && chsh -s /bin/zsh \
+  && mkdir ~/.antigen \
+  && curl -L git.io/antigen > ~/.antigen/antigen.zsh \
+  && chsh -s /bin/zsh
 }
 
 install_neovim() {
@@ -17,37 +19,23 @@ install_neovim() {
 
 install_ripgrep() {
   echo "Installing ripgrep..." \
-  && rm -f /usr/local/bin/rg \
+  && sudo rm -f /usr/local/bin/rg \
   && curl -L https://github.com/BurntSushi/ripgrep/releases/download/0.10.0/ripgrep-0.10.0-x86_64-unknown-linux-musl.tar.gz | tar zx \
-  && cp ripgrep-0.10.0-x86_64-unknown-linux-musl/rg /usr/local/bin \
+  && sudo cp ripgrep-0.10.0-x86_64-unknown-linux-musl/rg /usr/local/bin \
   && rm -rf ripgrep-0.10.0-x86_64-unknown-linux-musl
 }
 
 install_ctags() {
   echo "Installing universal ctags..." \
-    && rm -rf ./ctags \
-    && git clone https://github.com/universal-ctags/ctags \
-    && cd ctags && ./autogen.sh && ./configure && make && sudo make install && cd ../ && rm -rf ctags
+    && rm -f ~/.ctags \
+    && sudo apt-get install -y exuberant-ctags \
+    && ln -s $(pwd)/ctags/ctags ~/.ctags
 }
 
 install_diff_so_fancy() {
   echo "Installing diff-so-fancy..." \
     && npm install -g diff-so-fancy \
     && git config --global core.pager "diff-so-fancy | less --tabs=4 -R"
-}
-
-install_kitty() {
-  echo "Installing kitty..." \
-    && rm -rf ~/.local/kitty.app ~/.config/kitty \
-    && sudo pacman -S kitty \
-    && ln -s $(pwd)/kitty ~/.config/kitty
-}
-
-install_i3() {
-  rm -rf ~/.i3 \
-    && yaourt -S i3blocks-git kbdd-git \
-    && sudo pacman -S sysstat yad \
-    && ln -s $(pwd)/i3 ~/.i3
 }
 
 install_alacritty() {
@@ -66,27 +54,24 @@ install_git() {
 
 install_tmux() {
   echo "Installing tmux..." \
-  && rm -rf ~/.tmux.conf ~/.tmux.conf.local ~/.tmux \
+  && rm -rf ~/.tmux ~/.tmux.conf ~/.tmux.conf.local \
   && sudo apt-get install -y tmux \
-  && ln -s $(pwd)/tmux.conf ~/.tmux.conf \
-  && ln -s $(pwd)/tmux.conf.local ~/.tmux.conf.local \
-  && git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm \
-  && ~/.tmux/plugins/tpm/bin/install_plugins
+  && ln -s $(pwd)/tmux/.tmux.conf ~/.tmux.conf \
+  && ln -s $(pwd)/tmux/.tmux.conf.local ~/.tmux.conf.local \
+  && git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 }
 
-if [[ -z $1 ]]; then
+if [[ -z "$1" ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
   if echo "$answer" | grep -iq "^y" ;then
     echo "Installing dependencies..." \
     && install_git \
-#    && install_i3 \
     && install_oh_my_zsh \
     && install_neovim \
     && install_ripgrep \
     && install_ctags \
     && install_diff_so_fancy \
-#    && install_kitty \
     && install_alacritty \
     && install_tmux \
     && echo "Finished installation."
