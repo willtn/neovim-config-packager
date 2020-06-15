@@ -4,3 +4,5 @@
 [core]
 	editor = nvim
 	ignorecase = false
+	excludesfile = ~/.gitignore_global
+	pager = diff-so-fancy | less --tabs=2 -r

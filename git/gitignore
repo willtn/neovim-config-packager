@@ -8,3 +8,4 @@
 .bloop/
 ensime.sbt
 tags
+tags.*

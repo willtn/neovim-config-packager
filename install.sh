@@ -35,7 +35,7 @@ install_ctags() {
 install_diff_so_fancy() {
   echo "Installing diff-so-fancy..." \
     && npm install -g diff-so-fancy \
-    && git config --global core.pager "diff-so-fancy | less --tabs=4 -R"
+    && git config --global core.pager "diff-so-fancy | less --tabs=2 -r"
 }
 
 install_alacritty() {
@@ -47,9 +47,10 @@ install_alacritty() {
 
 install_git() {
   echo "Installing git..." \
-    && rm -rf ~/.config/git \
+    && rm -rf ~/.gitconfig ~/.gitignore_global \
     && sudo apt-get install -y git \
-    && ln -s $(pwd)/git ~/.config/git
+    && ln -s $(pwd)/git/config ~/.gitconfig \
+    && ln -s $(pwd)/git/gitignore ~/.gitignore_global
 }
 
 install_tmux() {
