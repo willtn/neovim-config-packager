@@ -62,6 +62,12 @@ install_tmux() {
   && git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 }
 
+install_fonts() {
+  echo "Installing fonts..." \
+    cp $(pwd)/fonts/* ~/.local/share/fonts
+    && fc-cache -f -v
+}
+
 if [[ -z "$1" ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
