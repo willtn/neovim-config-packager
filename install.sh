@@ -64,8 +64,14 @@ install_tmux() {
 
 install_fonts() {
   echo "Installing fonts..." \
-    cp $(pwd)/fonts/* ~/.local/share/fonts
+    && cp $(pwd)/fonts/* ~/.local/share/fonts \
     && fc-cache -f -v
+}
+
+install_sdkman() {
+  echo "Installing sdkman..." \
+    && curl -s "https://get.sdkman.io" | bash \
+    && source "$HOME/.sdkman/bin/sdkman-init.sh"
 }
 
 if [[ -z "$1" ]]; then

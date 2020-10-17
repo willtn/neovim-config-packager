@@ -72,3 +72,7 @@ zle -N fancy-ctrl-z
 bindkey '^Z' fancy-ctrl-z
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/Users/trungn/.sdkman"
+[[ -s "/Users/trungn/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/trungn/.sdkman/bin/sdkman-init.sh"
