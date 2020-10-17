@@ -74,6 +74,11 @@ install_sdkman() {
     && source "$HOME/.sdkman/bin/sdkman-init.sh"
 }
 
+install_jenv() {
+  echo "Installing jenv..." \
+    && git clone https://github.com/jenv/jenv.git ~/.jenv
+}
+
 if [[ -z "$1" ]]; then
   echo -n "This will delete all your previous nvim, zsh settings. Proceed? (y/n)? "
   read answer
@@ -87,6 +92,8 @@ if [[ -z "$1" ]]; then
     && install_diff_so_fancy \
     && install_alacritty \
     && install_tmux \
+    && install_sdkman \
+    && install_jenv \
     && echo "Finished installation."
   fi
 else
