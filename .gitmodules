@@ -1,3 +1,4 @@
 [submodule "tmux"]
 	path = tmux
 	url = git@github.com:willtn/.tmux.git
+	branch = master
