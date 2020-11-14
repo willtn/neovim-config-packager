@@ -58,6 +58,21 @@ alias uipes='yarn dev --agency vietnamui.qa.evidence.com --packages pes-web'
 alias buildedc='NODE_OPTIONS="--max-old-space-size=4096" lerna run build --scope @axon/edc-web'
 alias buildpes='yarn build --packages pes-web'
 
+alias vl='openvpn3 sessions-list'
+alias vc='opepnvpn3 session-manage --cleanup'
+
+alias vdev='openvpn3 session-start --config tvs-dev'
+alias vddev='openvpn3 session-manage --config tvs-dev --disconnect'
+
+alias vag1='openvpn3 session-start --config tvs-ag1'
+alias vdag1='openvpn3 session-manage --config tvs-ag1 --disconnect'
+
+alias vus2='openvpn3 session-start --config tvs-us2'
+alias vdus2='openvpn3 session-manage --config tvs-us2 --disconnect'
+
+alias vus5='openvpn3 session-start --config tvs-us5'
+alias vdus5='openvpn3 session-manage --config tvs-us5 --disconnect'
+
 alias weather="curl http://wttr.in"
 
 # nvm
