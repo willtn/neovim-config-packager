@@ -74,7 +74,7 @@ bindkey '^Z' fancy-ctrl-z
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # stack
-eval "$(stack --bash-completion-script stack)"
+# eval "$(stack --bash-completion-script stack)"
 
 # X11
 export DISPLAY=:0.0
