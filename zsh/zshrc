@@ -59,7 +59,7 @@ alias buildedc='NODE_OPTIONS="--max-old-space-size=4096" lerna run build --scope
 alias buildpes='yarn build --packages pes-web'
 
 alias vl='openvpn3 sessions-list'
-alias vc='opepnvpn3 session-manage --cleanup'
+alias vc='openvpn3 session-manage --cleanup'
 
 alias vdev='openvpn3 session-start --config tvs-dev'
 alias vddev='openvpn3 session-manage --config tvs-dev --disconnect'
@@ -74,6 +74,12 @@ alias vus5='openvpn3 session-start --config tvs-us5'
 alias vdus5='openvpn3 session-manage --config tvs-us5 --disconnect'
 
 alias weather="curl http://wttr.in"
+
+alias k="kubectl"
+
+alias kcag1="export KUBECONFIG=~/projects/ops/kubernetes2/env/ag1/ecom-cluster-b/kube.config"
+alias kcdv1="export KUBECONFIG=~/projects/ops/kubernetes2/env/dv1/ecom-cluster-b/kube.config"
+alias kcus2="export KUBECONFIG=~/projects/ops/kubernetes2/env/us2/ecom-cluster-b/kube.config"
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
